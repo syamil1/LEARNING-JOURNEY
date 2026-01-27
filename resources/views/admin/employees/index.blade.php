@@ -1,0 +1,274 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Employees
+        </h2>
+    </x-slot>
+
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
+            <!-- Search & Filter -->
+    <form method="GET" class="mb-4" id="employeeSearchForm">
+        <div class="flex items-center justify-between">
+
+            <!-- LEFT: Search + Filter -->
+            <div class="flex gap-3 items-end">
+
+                <!-- SEARCH -->
+                <div class="relative">
+                    <input 
+                        type="text"
+                        name="search"
+                        id="employeeSearch"
+                        value="{{ $search }}"
+                        placeholder="Search name or ID..."
+                        class="border px-3 py-2 rounded w-64 text-black"
+                        autocomplete="off"
+                    >
+
+                    <div 
+                        id="searchResults"
+                        class="hidden absolute w-full bg-white border rounded shadow mt-1 z-50">
+                    </div>
+                </div>
+
+                <!-- REGION -->
+                <select 
+                    name="region" 
+                    id="regionFilter"
+                    class="border px-3 py-2 rounded text-black">
+                    <option value="">All Regions</option>
+                    @foreach($regions as $region)
+                        <option value="{{ $region->id }}" 
+                            {{ $filterRegion == $region->id ? 'selected' : '' }}>
+                            {{ $region->name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <button 
+                    class="border border-green-700 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition">
+                    Search
+                </button>
+            </div>
+
+            <div class="flex gap-2">
+            <button 
+                type="button"
+                onclick="openImportModal()"
+                class="border border-blue-600 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition">
+                Import CSV
+            </button>
+
+            <!-- RIGHT: Add Employee -->
+            <a href="{{ route('admin.employees.create') }}" 
+                class="border border-green-700 text-white px-5 py-2 rounded bg-green-500 hover:bg-green-700 transition">
+                Add Employee
+            </a>
+            </div>
+        </div>
+    </form>
+
+    @if(session('success'))
+        <div class="bg-green-100 text-green-800 p-3 rounded mb-3">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="bg-yellow-100 text-yellow-800 p-3 rounded mb-3">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-100 text-red-800 p-3 rounded mb-3">
+            {{ session('error') }}
+        </div>
+    @endif
+
+            <!-- TABLE -->
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <table class="min-w-full text-black ">
+                    <thead>
+                        <tr class="border-b bg-gray-100">
+                            <th class="p-2 text-left">Employee ID</th>
+                            <th class="p-2 text-left">Name</th>
+                            <th class="p-2 text-left">Contract</th>
+                            <th class="p-2 text-left">Region</th>
+                            <th class="p-2 text-left">Store</th>
+                            <th class="p-2 text-left">Job</th>
+                            <th class="p-2 text-left">Joining Date</th>
+                            <th class="p-2 text-left">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    @foreach($employees as $emp)
+                        <tr class="border-b">
+                            <td class="p-2">{{ $emp->employee_id }}</td>
+                            <td class="p-2">{{ $emp->name }}</td>
+                            <td class="p-2">{{ $emp->contract_type }}</td>
+                            <td class="p-2">{{ $emp->region->name }}</td>
+                            <td class="p-2">{{ $emp->store->name }}</td>
+                            <td class="p-2">{{ $emp->job->name }}</td>
+                            <td class="p-2">{{ $emp->joining_date }}</td>
+                            <td class="p-2 flex gap-2">
+                                <a href="{{ route('admin.employees.show', $emp->employee_id) }}" 
+                                class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
+                                View
+                                </a>
+                                <a href="{{ route('admin.employees.edit', $emp->employee_id) }}" 
+                                class="px-3 py-1 border border-yellow-500 text-yellow-500 rounded hover:bg-yellow-500 hover:text-white transition">
+                                Edit
+                                </a>
+                                <form action="{{ route('admin.employees.destroy', $emp->employee_id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="px-3 py-1 border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+
+                <div class="mt-4">
+                    {{ $employees->links() }}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('employeeSearch');
+        const resultsBox = document.getElementById('searchResults');
+        const form = document.getElementById('employeeSearchForm');
+
+        const SEARCH_URL = "{{ route('admin.search.employees') }}";
+
+        async function fetchResults() {
+            const q = input.value.trim();
+
+            if (q.length < 1) {
+                resultsBox.innerHTML = "";
+                resultsBox.classList.add("hidden");
+                return;
+            }
+
+            try {
+                const res = await fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                const data = await res.json();
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    resultsBox.innerHTML =
+                        "<div class='p-3 text-gray-500'>No results</div>";
+                } else {
+                    resultsBox.innerHTML = data.map(item => `
+                        <div
+                            class="p-2 border-b hover:bg-gray-100 cursor-pointer"
+                            onclick="selectEmployee('${item.employee_id}')"
+                        >
+                            <strong>${item.employee_id}</strong> - ${item.name}
+                        </div>
+                    `).join('');
+                }
+
+                resultsBox.classList.remove("hidden");
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        input.addEventListener('keyup', fetchResults);
+
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !resultsBox.contains(e.target)) {
+                resultsBox.classList.add("hidden");
+            }
+        });
+
+        window.selectEmployee = function(value) {
+            input.value = value;
+            resultsBox.classList.add("hidden");
+            form.submit();
+        };
+    });
+
+    function openImportModal() {
+        document.getElementById('importModal').classList.remove('hidden');
+        document.getElementById('importModal').classList.add('flex');
+    }
+
+    function closeImportModal() {
+        document.getElementById('importModal').classList.add('hidden');
+        document.getElementById('importModal').classList.remove('flex');
+    }
+
+    function confirmImport() {
+        if (confirm('Are you sure you want to import this CSV data?')) {
+            document.getElementById('importForm').submit();
+        }
+    }
+    </script>
+<!-- IMPORT CSV MODAL -->
+<div id="importModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+
+    <div class="bg-white rounded-lg w-full max-w-md p-6 text-black">
+        <h3 class="text-lg font-semibold mb-2">Import Employees (CSV)</h3>
+
+        <p class="text-sm text-gray-600 mb-4">
+            Format CSV:
+            employee_id, name, contract_type, store_id, job_id, birthday date, initial_employment_date, joining_date, permanent date
+        </p>
+        <a href="{{ asset('templates/Employees.csv') }}"
+            download
+            class="inline-block mb-3 text-sm text-blue-600 hover:underline">
+                Download CSV Template
+        </a>
+
+
+        <form id="importForm"
+              action="{{ route('admin.employees.import') }}"
+              method="POST"
+              enctype="multipart/form-data">
+            @csrf
+
+            <input
+                type="file"
+                name="file"
+                accept=".csv"
+                required
+                class="border w-full px-3 py-2 rounded mb-4"
+            >
+
+            <div class="flex justify-end gap-3">
+                <button
+                    type="button"
+                    onclick="closeImportModal()"
+                    class="px-4 py-2 border rounded hover:bg-gray-100">
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    onclick="confirmImport()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Import
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</x-app-layout>
