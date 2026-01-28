@@ -9,7 +9,11 @@
                 @csrf
                 @method('PUT')
 
-                @include('admin.introductions.form')
+                @include('admin.introductions.form', [
+                    'introduction' => $introduction,
+                    'mode' => 'edit'
+                ])
+
 
                 <button class="mt-4 px-5 py-2 bg-yellow-600 text-white rounded">
                     Update

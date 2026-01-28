@@ -37,10 +37,12 @@ class EmployeeTrainingScore extends Model
         'rso_retail_store_promotion' => 0,
         'rso_store_financial_perspective' => 0,
         'rso_store_general_checkup_strategy' => 0,
-        'learning_hours' => 0,
         'nilai_ngecas' => 0,
     ];
 
+    protected $casts = [
+        'learning_hours' => 'float',
+    ];
 
     public function employee()
     {

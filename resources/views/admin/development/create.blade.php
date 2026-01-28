@@ -42,7 +42,7 @@
         const resultsBox = document.getElementById('searchResults');
         const btn = document.getElementById('searchBtn');
 
-        const SEARCH_URL = "{{ route('admin.search-employees') }}";
+        const SEARCH_URL = "{{ route('admin.search.employees') }}";
 
         async function fetchResults() {
             let q = input.value.trim();

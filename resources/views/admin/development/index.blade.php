@@ -146,33 +146,56 @@
     </tbody>
 </table>
     </div>
+<!-- IMPORT CSV MODAL -->
+<div id="importModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
 
-    <div id="importModal"
-     class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-md p-6 text-black">
+        <h3 class="text-lg font-semibold mb-2">Import Training Score (CSV)</h3>
 
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <h3 class="text-lg font-semibold mb-4">
-            Import Training Score CSV
-        </h3>
+        <p class="text-sm text-gray-600 mb-4">
+            Format CSV:
+            employee_id, gramedia_daily_store, rso_supervisory_skill,
+            rso_retail_salesmanship, rso_customer_service_loyalty,
+            rso_product_merchandising, rso_visual_merchandising,
+            rso_retail_store_promotion, rso_store_financial_perspective,
+            rso_store_general_checkup_strategy, learning_hours,
+            nilai_ngecas, compulsory_training, optional_training,
+            development_program
+        </p>
 
-        <form method="POST"
+        <a href="{{ asset('templates/Employee_Training_Score.csv') }}"
+           download
+           class="inline-block mb-3 text-sm text-blue-600 hover:underline">
+            Download CSV Template
+        </a>
+
+        <form id="importForm"
               action="{{ route('admin.development.import') }}"
+              method="POST"
               enctype="multipart/form-data">
             @csrf
 
-            <input type="file"
-                   name="file"
-                   required
-                   class="w-full border px-3 py-2 rounded mb-4">
+            <input
+                type="file"
+                name="file"
+                accept=".csv"
+                required
+                class="border w-full px-3 py-2 rounded mb-4"
+            >
 
-            <div class="flex justify-end gap-2">
-                <button type="button"
-                        onclick="closeImportModal()"
-                        class="px-4 py-2 border rounded">
+            <div class="flex justify-end gap-3">
+                <button
+                    type="button"
+                    onclick="closeImportModal()"
+                    class="px-4 py-2 border rounded hover:bg-gray-100">
                     Cancel
                 </button>
 
-                <button class="px-4 py-2 bg-indigo-600 text-white rounded">
+                <button
+                    type="button"
+                    onclick="confirmImport()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                     Import
                 </button>
             </div>
@@ -189,6 +212,10 @@ function openImportModal() {
 function closeImportModal() {
     document.getElementById('importModal').classList.add('hidden');
     document.getElementById('importModal').classList.remove('flex');
+}
+
+function confirmImport() {
+    document.getElementById('importForm').submit();
 }
 </script>
 

@@ -18,8 +18,10 @@
             <form method="POST" action="{{ route('admin.introductions.store') }}">
                 @csrf
                 @include('admin.introductions.form', [
-                    'introduction' => $introduction
+                    'introduction' => $introduction,
+                    'mode' => 'create'
                 ])
+
                 <div class="mt-6">
                     <button class="w-full bg-green-700 text-white py-2 rounded">
                         Save

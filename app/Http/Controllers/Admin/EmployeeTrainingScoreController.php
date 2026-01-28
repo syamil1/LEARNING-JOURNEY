@@ -66,7 +66,7 @@ class EmployeeTrainingScoreController extends Controller
             'rso_retail_store_promotion' => 'nullable|integer|min:0|max:100',
             'rso_store_financial_perspective' => 'nullable|integer|min:0|max:100',
             'rso_store_general_checkup_strategy' => 'nullable|integer|min:0|max:100',
-            'learning_hours' => 'nullable|integer|min:0',
+            'learning_hours' => 'nullable|numeric|min:0',
             'nilai_ngecas' => 'nullable|integer|min:0|max:100',
             'compulsory_training' => 'nullable|string',
             'optional_training' => 'nullable|string',
@@ -122,7 +122,7 @@ class EmployeeTrainingScoreController extends Controller
             'rso_store_financial_perspective' => 'nullable|integer|min:0|max:100',
             'rso_store_general_checkup_strategy' => 'nullable|integer|min:0|max:100',
 
-            'learning_hours' => 'nullable|integer|min:0',
+            'learning_hours' => 'nullable|numeric|min:0',
             'nilai_ngecas' => 'nullable|integer|min:0|max:100',
 
             'compulsory_training' => 'nullable|string',

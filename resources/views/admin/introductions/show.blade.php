@@ -12,8 +12,11 @@
                 Interview & FGD Result
             </h3>
 
-            {{-- REUSE FORM --}}
-            @include('admin.introductions.form')
+            @include('admin.introductions.form', [
+                'introduction' => $introduction,
+                'mode' => 'show'
+            ])
+
 
             <div class="mt-6 text-center">
                 <a href="{{ route('admin.introductions.index') }}"

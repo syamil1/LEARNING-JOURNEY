@@ -246,54 +246,63 @@
     });
     </script>
 
-    <!-- IMPORT CSV MODAL -->
-    <div id="importModal"
-        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+ <!-- IMPORT CSV MODAL -->
+<div id="importModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
 
-        <div class="bg-white rounded-lg w-full max-w-md p-6 text-black">
-            <h3 class="text-lg font-semibold mb-2">Import Introduction (CSV)</h3>
+    <div class="bg-white rounded-lg w-full max-w-md p-6 text-black">
+        <h3 class="text-lg font-semibold mb-2">Import Introduction (CSV)</h3>
 
-            <p class="text-sm text-gray-600 mb-4">
-                Format CSV:<br>
-                <code class="text-xs">
-                    nik, fgd_analytic_score, fgd_business_score, fgd_leadership_score,
-                    interview_analytic_score, interview_business_score,
-                    interview_leadership_score, fgd_note, interview_note,
-                    mcu, psikotes, rekomendasi, pic
-                </code>
-            </p>
+        <p class="text-sm text-gray-600 mb-4">
+            Format CSV:
+            <br>
+            <code class="text-xs">
+                nik, fgd_analytic_score, fgd_business_score, fgd_leadership_score,
+                interview_analytic_score, interview_business_score,
+                interview_leadership_score, fgd_note, interview_note,
+                mcu, psikotes, rekomendasi, pic
+            </code>
+        </p>
 
-            <form id="importForm"
-                action="{{ route('admin.introductions.import') }}"
-                method="POST"
-                enctype="multipart/form-data">
-                @csrf
+        {{-- Download template --}}
+        <a href="{{ asset('templates/Introductions.csv') }}"
+           download
+           class="inline-block mb-3 text-sm text-blue-600 hover:underline">
+            Download CSV Template
+        </a>
 
-                <input
-                    type="file"
-                    name="file"
-                    accept=".csv"
-                    required
-                    class="border w-full px-3 py-2 rounded mb-4"
-                >
+        <form id="importForm"
+              action="{{ route('admin.introductions.import') }}"
+              method="POST"
+              enctype="multipart/form-data">
+            @csrf
 
-                <div class="flex justify-end gap-3">
-                    <button
-                        type="button"
-                        onclick="closeImportModal()"
-                        class="px-4 py-2 border rounded hover:bg-gray-100">
-                        Cancel
-                    </button>
+            <input
+                type="file"
+                name="file"
+                accept=".csv"
+                required
+                class="border w-full px-3 py-2 rounded mb-4"
+            >
 
-                    <button
-                        type="button"
-                        onclick="confirmImport()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        Import
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex justify-end gap-3">
+                <button
+                    type="button"
+                    onclick="closeImportModal()"
+                    class="px-4 py-2 border rounded hover:bg-gray-100">
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    onclick="confirmImport()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Import
+                </button>
+            </div>
+        </form>
     </div>
+</div>
+
 
 </x-app-layout>

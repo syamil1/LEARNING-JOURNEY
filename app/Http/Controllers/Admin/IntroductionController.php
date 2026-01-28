@@ -161,57 +161,59 @@ class IntroductionController extends Controller
             // ===============================
             $read    = 0;
             $created = 0;
-            $updated = 0; // disiapkan kalau nanti mau update
             $skipped = 0;
 
             while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
 
-                // validasi dasar
-                if (count($row) < 10 || trim($row[0]) === '') {
-                    $skipped++;
-                    continue;
-                }
-
                 $read++;
 
-                $employeeId = trim($row[0]);
-
-                // skip jika employee sudah ada
-                if (DB::table('employees')->where('employee_id', $employeeId)->exists()) {
+                // CSV Introduction HARUS 13 kolom
+                if (count($row) < 13 || trim($row[0]) === '') {
                     $skipped++;
                     continue;
                 }
 
-                $regionId  = $row[3];
-                $storeId   = $row[4];
-                $sectionId = $row[5];
-                $jobId     = 1;
+                $nik = trim($row[0]);
 
-                // validasi foreign key
-                if (
-                    !DB::table('regions')->where('id', $regionId)->exists() ||
-                    !DB::table('stores')->where('id', $storeId)->exists() ||
-                    !DB::table('sections')->where('id', $sectionId)->exists() ||
-                    !DB::table('jobs')->where('id', $jobId)->exists()
-                ) {
+                // ===============================
+                // VALIDASI EMPLOYEE HARUS ADA
+                // ===============================
+                if (!DB::table('employees')->where('employee_id', $nik)->exists()) {
                     $skipped++;
                     continue;
                 }
 
-                DB::table('employees')->insert([
-                    'employee_id'             => $employeeId,
-                    'name'                    => trim($row[1]),
-                    'contract_type'           => trim($row[2]),
-                    'region_id'               => $regionId,
-                    'store_id'                => $storeId,
-                    'section_id'              => $sectionId,
-                    'job_id'                  => $jobId,
-                    'birthday'                => $this->parseDate($row[6] ?? null),
-                    'initial_employment_date' => $this->parseDate($row[7] ?? null),
-                    'joining_date'            => $this->parseDate($row[8] ?? null),
-                    'permanent_date'          => $this->parseDate($row[9] ?? null),
-                    'created_at'              => now(),
-                    'updated_at'              => now(),
+                // ===============================
+                // SKIP JIKA INTRODUCTION SUDAH ADA
+                // ===============================
+                if (DB::table('introductions')->where('nik', $nik)->exists()) {
+                    $skipped++;
+                    continue;
+                }
+
+                // ===============================
+                // INSERT INTRODUCTION
+                // ===============================
+                DB::table('introductions')->insert([
+                    'nik' => $nik,
+
+                    'fgd_analytic_score'        => $row[1] !== '' ? (int) $row[1] : null,
+                    'fgd_business_score'        => $row[2] !== '' ? (int) $row[2] : null,
+                    'fgd_leadership_score'      => $row[3] !== '' ? (int) $row[3] : null,
+
+                    'interview_analytic_score'  => $row[4] !== '' ? (int) $row[4] : null,
+                    'interview_business_score'  => $row[5] !== '' ? (int) $row[5] : null,
+                    'interview_leadership_score'=> $row[6] !== '' ? (int) $row[6] : null,
+
+                    'fgd_note'        => $row[7]  ?? null,
+                    'interview_note'  => $row[8]  ?? null,
+                    'mcu'             => $row[9]  ?? null,
+                    'psikotes'        => $row[10] ?? null,
+                    'rekomendasi'     => $row[11] ?? null,
+                    'pic'             => $row[12] ?? null,
+
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
 
                 $created++;
@@ -223,17 +225,17 @@ class IntroductionController extends Controller
                 ->route('admin.introductions.index')
                 ->with(
                     'success',
-                    "Import Employees selesai.
+                    "Import Introduction selesai.
                     {$read} dibaca,
                     {$created} dibuat,
-                    {$updated} diperbarui,
                     {$skipped} dilewati."
                 );
 
         } catch (\Throwable $e) {
             fclose($file);
 
-            return back()->with('error', 
+            return back()->with(
+                'error',
                 "Import gagal: {$e->getMessage()} ({$e->getFile()}:{$e->getLine()})"
             );
         }
