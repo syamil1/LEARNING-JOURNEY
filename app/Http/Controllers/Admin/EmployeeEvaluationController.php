@@ -166,11 +166,11 @@ class EmployeeEvaluationController extends Controller
 
     public function create()
     {
-        $introduction = new Introduction();
         $employees = Employee::select('employee_id', 'name')->get();
 
-        return view('admin.introductions.create', compact('introduction', 'employees'));
+        return view('admin.evaluations.create', compact('employees'));
     }
+
 
 
     public function store(Request $request)
@@ -405,6 +405,7 @@ public function import(Request $request, string $period)
 
     while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
 
+     dd($row);
         if (count($row) < 3 || trim($row[0]) === '') {
             $skipped++;
             continue;
@@ -456,12 +457,13 @@ public function import(Request $request, string $period)
 
     return back()->with(
         'success',
-        "Import KPI {$period} selesai.
-        {$read} dibaca,
-        {$created} data dibuat,
-        {$updated} diperbarui,
-        {$skipped} dilewati."
+        "Import KPI completed. 
+        Read: {$read}, 
+        Created: {$created}, 
+        Updated: {$updated}, 
+        Skipped: {$skipped}."
     );
+
 }
 
 public function importAssessment(Request $request)

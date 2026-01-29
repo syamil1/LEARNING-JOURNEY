@@ -15,7 +15,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(MentoringSeeder::class);
+        $this->call([
+            RegionSeeder::class,
+            SectionSeeder::class,
+            JobSeeder::class,
+            AdminHrSeeder::class, // kalau ada
+        ]);
     }
+
 
 }

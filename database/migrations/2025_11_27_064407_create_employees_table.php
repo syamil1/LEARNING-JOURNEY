@@ -21,24 +21,24 @@ return new class extends Migration
 
             // Foreign keys
             $table->foreignId('region_id')
-                ->constrained('regions')
-                ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
             $table->foreignId('store_id')
-                ->constrained('stores')
-                ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
             $table->foreignId('section_id')
-                ->constrained('sections')
-                ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
             $table->foreignId('job_id')
-                ->constrained('jobs')
-                ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
 
             // Date attributes
             $table->date('birthday')->nullable();
