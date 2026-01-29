@@ -13,17 +13,20 @@ class EmployeeTrainingScoreController extends Controller
     {
         $search = $request->search;
 
-        $scores = EmployeeTrainingScore::with('employee')
+        $scores = EmployeeTrainingScore::with(['employee.store'])
             ->when($search, function ($q) use ($search) {
                 $q->whereHas('employee', function ($emp) use ($search) {
-                    $emp->where('name', 'LIKE', "%$search%");
+                    $emp->where('employee_id', 'LIKE', "%{$search}%")
+                        ->orWhere('name', 'LIKE', "%{$search}%");
                 });
             })
-            ->latest() 
-            ->get();
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('admin.development.index', compact('scores'));
-    }
+        return view('admin.development.index', compact('scores', 'search'));
+}
+
 
     public function search(Request $request)
     {

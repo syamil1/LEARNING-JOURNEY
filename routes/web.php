@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\EmployeeEvaluationController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\ChecklistController as OnboardingChecklistController;
+use App\Http\Controllers\Admin\EmployeeReportController;
 
 use Illuminate\Support\Facades\Route;
     Route::get('/', function () {
@@ -69,6 +70,11 @@ use Illuminate\Support\Facades\Route;
         Route::get('mentoring/{employee_id}', [AdminMentoringController::class, 'show'])->name('mentoring.show');
         Route::patch('mentoring/verify/{id}', [AdminMentoringController::class, 'verify'])->name('mentoring.verify');
 
+        // VIEW REPORT (WEB)
+        Route::get('/employees/{employee}/report',[EmployeeReportController::class, 'show'])->name('employees.report.show');
+
+        // DOWNLOAD PDF
+        Route::get('/employees/{employee}/report/pdf',[EmployeeReportController::class, 'pdf'])->name('employees.report.pdf');
     });
 
 

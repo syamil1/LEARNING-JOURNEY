@@ -26,6 +26,19 @@
                 <tr><th class="p-2">Updated At</th><td class="p-2">{{ $employee->updated_at }}</td></tr>
             </table>
 
+            <div class="flex gap-2 mb-4 text-center">
+                <a href="{{ route('admin.employees.report.show', $employee) }}"
+                class="bg-gray-800 text-white px-4 py-2 rounded">
+                    View Learning Journey
+                </a>
+
+                <a href="{{ route('admin.employees.report.pdf', $employee) }}"
+                class="bg-red-600 text-white px-4 py-2 rounded">
+                    Download PDF
+                </a>
+            </div>
+
+
             <div class="mt-6 text-center">
                 <a href="{{ route('admin.employees.index') }}"
                    class="text-blue-600 hover:underline">

@@ -19,6 +19,7 @@
                 {{ session('warning') }}
             </div>
         @endif
+        <div class="max-w-7xl mx-auto px-6 py-6">
         <div class="flex items-center justify-between mb-4">
 
             <!-- SEARCH BOX -->
@@ -145,6 +146,9 @@
         @endforeach
     </tbody>
 </table>
+    <div class="mt-4">
+        {{ $scores->links() }}
+    </div>
     </div>
 <!-- IMPORT CSV MODAL -->
 <div id="importModal"
@@ -201,6 +205,7 @@
             </div>
         </form>
     </div>
+</div>
 </div>
 
 <script>

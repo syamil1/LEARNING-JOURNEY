@@ -108,7 +108,7 @@ class EmployeeEvaluationController extends Controller
         $evaluations = $query
             ->paginate(10)
             ->withQueryString();
-
+ 
         /**
          * HITUNG DATA TAMBAHAN (LOGIC LAMA KAMU)
          */
