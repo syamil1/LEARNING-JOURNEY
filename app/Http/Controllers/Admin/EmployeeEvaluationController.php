@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use Illuminate\Support\Facades\Storage;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmployeeEvaluation;
@@ -175,16 +176,47 @@ class EmployeeEvaluationController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,employee_id|unique:employee_evaluations,employee_id',
-            'kpi_june' => 'required|numeric|min:0',
-            'kpi_december' => 'required|numeric|min:0',
-            'kpi_last_year_june' => 'nullable|numeric|min:0',
-            'kpi_last_year_december' => 'nullable|numeric|min:0',
-            'assessment_link' => 'nullable|string',
-        ]);
+    $validated = $request->validate([
+        'employee_id' => 'required|exists:employees,employee_id|unique:employee_evaluations,employee_id',
 
-        EmployeeEvaluation::create($validated);
+        'kpi_period' => 'required|in:june,december',
+
+        'business_score' => 'required|numeric|min:0',
+        'behavior_score' => 'required|numeric|min:0',
+        'pa_score' => 'required|numeric|min:0',
+
+        'last_year_kpi_june' => 'nullable|numeric|min:0',
+        'last_year_kpi_december' => 'nullable|numeric|min:0',
+
+        'assessment_link' => 'nullable|string',
+    ]);
+
+        $totalKpi =
+            $validated['business_score'] +
+            $validated['behavior_score'] +
+            $validated['pa_score'];
+
+    $data = [
+        'employee_id' => $validated['employee_id'],
+
+        'business_score' => $validated['business_score'],
+        'behavior_score' => $validated['behavior_score'],
+        'pa_score' => $validated['pa_score'],
+
+        'last_year_kpi_june' => $validated['last_year_kpi_june'] ?? null,
+        'last_year_kpi_december' => $validated['last_year_kpi_december'] ?? null,
+
+        'assessment_link' => $validated['assessment_link'] ?? null,
+    ];
+
+    if ($validated['kpi_period'] === 'june') {
+        $data['kpi_june'] = $totalKpi;
+    } else {
+        $data['kpi_december'] = $totalKpi;
+    }
+
+    EmployeeEvaluation::create($data);
+
 
         return redirect()->route('admin.evaluations.index')
             ->with('success', 'Employee evaluation saved.');
@@ -203,16 +235,48 @@ class EmployeeEvaluationController extends Controller
     public function update(Request $request, EmployeeEvaluation $evaluation)
     {
         $validated = $request->validate([
-            'kpi_june' => 'required|numeric|min:0',
-            'kpi_december' => 'required|numeric|min:0',
-            'kpi_last_year_june' => 'nullable|numeric|min:0',
-            'kpi_last_year_december' => 'nullable|numeric|min:0',
+            'business_score' => 'required|numeric|min:0',
+            'behavior_score' => 'required|numeric|min:0',
+            'pa_score'       => 'required|numeric|min:0',
+
+            'last_year_kpi_june'     => 'nullable|numeric|min:0',
+            'last_year_kpi_december' => 'nullable|numeric|min:0',
+
             'assessment_link' => 'nullable|string',
         ]);
 
-        $evaluation->update($validated);
+        $totalKpi =
+            $validated['business_score'] +
+            $validated['behavior_score'] +
+            $validated['pa_score'];
 
-        return redirect()->route('admin.evaluations.index')
+        // UPDATE ASPECT
+        $evaluation->business_score = $validated['business_score'];
+        $evaluation->behavior_score = $validated['behavior_score'];
+        $evaluation->pa_score       = $validated['pa_score'];
+
+        // UPDATE KPI TERAKHIR
+        if ($evaluation->kpi_december !== null) {
+            $evaluation->kpi_december = $totalKpi;
+        } else {
+            $evaluation->kpi_june = $totalKpi;
+        }
+
+        // PREVIOUS YEAR
+        $evaluation->last_year_kpi_june =
+            $validated['last_year_kpi_june'] ?? null;
+
+        $evaluation->last_year_kpi_december =
+            $validated['last_year_kpi_december'] ?? null;
+
+        // ASSESSMENT
+        $evaluation->assessment_link =
+            $validated['assessment_link'] ?? null;
+
+        $evaluation->save();
+
+        return redirect()
+            ->route('admin.evaluations.index')
             ->with('success', 'Employee evaluation updated.');
     }
 
@@ -363,6 +427,29 @@ public function export(Request $request)
     }, 200, $headers);
 }
 
+public function downloadTemplate(string $type)
+{
+    $templates = [
+        'kpi' => 'KPI.csv',
+        'assessment' => 'assessment.csv',
+    ];
+
+    if (!array_key_exists($type, $templates)) {
+        abort(404);
+    }
+
+    // path ke public/templates
+    $path = public_path('templates/' . $templates[$type]);
+
+    if (!file_exists($path)) {
+        abort(404, 'Template file not found');
+    }
+
+    return response()->download($path);
+}
+
+
+
 
 private function cleanCsv($value)
 {
@@ -405,11 +492,6 @@ public function import(Request $request, string $period)
 
     while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
 
-     dd($row);
-        if (count($row) < 3 || trim($row[0]) === '') {
-            $skipped++;
-            continue;
-        }
 
         $read++;
 

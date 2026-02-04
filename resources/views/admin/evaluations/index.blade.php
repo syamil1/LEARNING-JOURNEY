@@ -254,6 +254,23 @@
                 @csrf
 
                 <div class="mb-4">
+                    {{-- TEMPLATE DOWNLOAD --}}
+                <div class="mb-4 space-y-2 text-sm">
+                    <p class="text-gray-600 font-medium">Download Template:</p>
+
+                    <div class="flex flex-col gap-2">
+                        <a href="{{ route('admin.evaluations.template', 'kpi') }}"
+                        class="px-3 py-2 border rounded hover:bg-gray-50 text-indigo-600">
+                            ⬇ Template Import KPI
+                        </a>
+
+                        <a href="{{ route('admin.evaluations.template', 'assessment') }}"
+                        class="px-3 py-2 border rounded hover:bg-gray-50 text-green-600">
+                            ⬇ Template Import Assessment
+                        </a>
+                    </div>
+                </div>
+
                     <label class="block text-sm font-medium mb-1">
                         Choose CSV File
                     </label>

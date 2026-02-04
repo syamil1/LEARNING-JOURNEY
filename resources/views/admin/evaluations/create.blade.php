@@ -49,59 +49,101 @@
             @enderror
         </div>
 
-        {{-- KPI --}}
+    {{-- ================= KPI CURRENT YEAR ================= --}}
+    <div class="mt-6">
+        <h3 class="font-semibold mb-3">KPI – Current Year</h3>
+
+        {{-- KPI ASPECTS --}}
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <label class="block mb-1">Business Score</label>
+                <input type="number" step="0.01" name="business_score"
+                    class="border p-2 w-full rounded"
+                    value="{{ old('business_score') }}">
+            </div>
+
+            <div>
+                <label class="block mb-1">Behavior Score</label>
+                <input type="number" step="0.01" name="behavior_score"
+                    class="border p-2 w-full rounded"
+                    value="{{ old('behavior_score') }}">
+            </div>
+
+            <div>
+                <label class="block mb-1">PA Score</label>
+                <input type="number" step="0.01" name="pa_score"
+                    class="border p-2 w-full rounded"
+                    value="{{ old('pa_score') }}">
+            </div>
+        </div>
+
+        {{-- KPI PERIOD --}}
+        <div class="mt-4">
+            <label class="block font-semibold mb-2">KPI Period</label>
+
+            <div class="flex gap-6">
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="kpi_period" value="june"
+                        {{ old('kpi_period') === 'june' ? 'checked' : '' }}>
+                    June
+                </label>
+
+                <label class="flex items-center gap-2">
+                    <input type="radio" name="kpi_period" value="december"
+                        {{ old('kpi_period') === 'december' ? 'checked' : '' }}>
+                    December
+                </label>
+            </div>
+
+            @error('kpi_period')
+                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+    </div>
+
+    {{-- ================= KPI PREVIOUS YEAR ================= --}}
+    <div class="mt-8">
+        <h3 class="font-semibold mb-3">KPI – Previous Year</h3>
+
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label>KPI June</label>
-                <input type="number" step="0.01" name="kpi_june"
-                       class="border p-2 w-full rounded"
-                       value="{{ old('kpi_june') }}">
+                <label class="block mb-1">June</label>
+                <input type="number" step="0.01" name="last_year_kpi_june"
+                    class="border p-2 w-full rounded"
+                    value="{{ old('last_year_kpi_june') }}">
             </div>
 
             <div>
-                <label>KPI December</label>
-                <input type="number" step="0.01" name="kpi_december"
-                       class="border p-2 w-full rounded"
-                       value="{{ old('kpi_december') }}">
+                <label class="block mb-1">December</label>
+                <input type="number" step="0.01" name="last_year_kpi_december"
+                    class="border p-2 w-full rounded"
+                    value="{{ old('last_year_kpi_december') }}">
             </div>
         </div>
+    </div>
 
-        <div class="grid grid-cols-2 gap-4 mt-4">
-            <div>
-                <label>KPI June (Previous Year)</label>
-                <input type="number" step="0.01" name="kpi_june_prev"
-                       class="border p-2 w-full rounded"
-                       value="{{ old('kpi_june_prev') }}">
-            </div>
+    {{-- ================= ASSESSMENT ================= --}}
+    <div class="mt-6">
+        <label class="block mb-1">Assessment Link</label>
+        <input type="text" name="assessment_link"
+            class="border p-2 w-full rounded"
+            value="{{ old('assessment_link') }}">
+    </div>
 
-            <div>
-                <label>KPI December (Previous Year)</label>
-                <input type="number" step="0.01" name="kpi_dec_prev"
-                       class="border p-2 w-full rounded"
-                       value="{{ old('kpi_dec_prev') }}">
-            </div>
-        </div>
+    {{-- ================= ACTION ================= --}}
+    <button
+        type="submit"
+        class="mt-6 bg-blue-600 text-white px-5 py-2 rounded"
+        onclick="
+            if (!document.getElementById('employee_id').value) {
+                alert('Please select an employee from the list');
+                return false;
+            }
+        "
+    >
+        Save
+    </button>
 
-        <div class="mt-4">
-            <label>Assessment Link</label>
-            <input type="text" name="assessment_link"
-                   class="border p-2 w-full rounded"
-                   value="{{ old('assessment_link') }}">
-        </div>
-
-        {{-- BUTTON --}}
-        <button
-            type="submit"
-            class="mt-5 bg-blue-600 text-white px-4 py-2 rounded"
-            onclick="
-                if (!document.getElementById('employee_id').value) {
-                    alert('Please select an employee from the list');
-                    return false;
-                }
-            "
-        >
-            Save
-        </button>
 
         </form>
     </div>

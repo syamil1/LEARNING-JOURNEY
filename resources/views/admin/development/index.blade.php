@@ -96,8 +96,9 @@
             input.addEventListener('keyup', fetchResults);
         });
 
-        window.selectEmployeeIndex = function(employeeId, nik, name) {
-            window.location.href = "{{ route('admin.development.index') }}" + "?employee_id=" + employeeId;
+        window.selectEmployeeIndex = function(employeeId) {
+            window.location.href =
+                "{{ route('admin.development.index') }}" + "?search=" + employeeId;
         };
         </script>
 
@@ -165,7 +166,7 @@
             rso_retail_store_promotion, rso_store_financial_perspective,
             rso_store_general_checkup_strategy, learning_hours,
             nilai_ngecas, compulsory_training, optional_training,
-            development_program
+            development_program.
         </p>
 
         <a href="{{ asset('templates/Employee_Training_Score.csv') }}"

@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Route;
         Route::get('search/employees',[EmployeeController::class, 'search'])->name('search.employees');
         Route::resource('employees', EmployeeController::class);
         Route::post('employees/import', [EmployeeController::class, 'import'])->name('employees.import');
-        Route::get('employees/template-csv', [\App\Http\Controllers\Admin\EmployeeController::class, 'downloadTemplate'])->name('employees.template');
+        Route::get('employees/template-csv', [EmployeeController::class, 'downloadTemplate'])->name('employees.template');
 
         // STORES
         Route::resource('stores', StoreController::class);
@@ -53,7 +53,9 @@ use Illuminate\Support\Facades\Route;
         Route::post('employee-evaluations/import/{period}', [EmployeeEvaluationController::class, 'import'])->name('employee-evaluations.import');
         Route::post('employee-evaluations/import-assessment', [EmployeeEvaluationController::class, 'importAssessment'])->name('employee-evaluations.import-assessment');
         Route::resource('evaluations', EmployeeEvaluationController::class);
-        
+        Route::get('evaluations/template/{type}',[EmployeeEvaluationController::class, 'downloadTemplate'])->name('evaluations.template');
+
+                
         // DEVELOPMENT (TRAINING SCORE)
         Route::resource('development', EmployeeTrainingScoreController::class);
         Route::post('development/import', [EmployeeTrainingScoreController::class, 'import'])->name('development.import');
