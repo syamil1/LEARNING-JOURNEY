@@ -2,7 +2,8 @@
         <x-slot name="header">
             <h2 class="text-xl font-semibold">Employee Training Scores</h2>
         </x-slot>
-        @if (session('success'))
+        <div class="max-w-7xl mx-auto px-6 py-6">
+                    @if (session('success'))
             <div class="mb-4 p-4 rounded bg-green-100 border border-green-300 text-green-800">
                 {{ session('success') }}
             </div>
@@ -19,9 +20,7 @@
                 {{ session('warning') }}
             </div>
         @endif
-        <div class="max-w-7xl mx-auto px-6 py-6">
         <div class="flex items-center justify-between mb-4">
-
             <!-- SEARCH BOX -->
             <div class="w-80">
                 <label class="font-semibold">Search Employee</label>
