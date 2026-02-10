@@ -33,7 +33,10 @@
         </div>
     </x-slot>
 
-    <div class="py-6 max-w-7xl mx-auto space-y-6">
+<div class="py-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    {{-- ================= LEFT COLUMN ================= --}}
+    <div class="space-y-6">
 
         {{-- ================= EMPLOYEE INFO ================= --}}
         <div class="bg-white shadow rounded p-6">
@@ -44,17 +47,14 @@
                     <p class="text-gray-500">Employee ID</p>
                     <p class="font-semibold">{{ $employee->employee_id }}</p>
                 </div>
-
                 <div>
                     <p class="text-gray-500">Name</p>
                     <p class="font-semibold">{{ $employee->name }}</p>
                 </div>
-
                 <div>
                     <p class="text-gray-500">Store</p>
                     <p class="font-semibold">{{ $employee->store->name ?? '-' }}</p>
                 </div>
-
                 <div>
                     <p class="text-gray-500">Job</p>
                     <p class="font-semibold">{{ $employee->job->name ?? '-' }}</p>
@@ -63,238 +63,220 @@
         </div>
 
         {{-- ================= INTRODUCTION ================= --}}
-    <div class="bg-white shadow rounded p-6 space-y-6">
-        <h3 class="text-lg font-semibold">Introduction Assessment</h3>
+        <div class="bg-white shadow rounded p-6 space-y-6">
+            <h3 class="text-lg font-semibold">Introduction Assessment</h3>
 
-        @if($introduction)
+            @if($introduction)
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border">
+                    <thead class="bg-gray-100 text-center">
+                        <tr>
+                            <th class="p-2 border text-left"></th>
+                            <th class="p-2 border">Analytic</th>
+                            <th class="p-2 border">Business</th>
+                            <th class="p-2 border">Leadership</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-2 border font-semibold">FGD</td>
+                            @foreach([
+                                $introduction->fgd_analytic_score,
+                                $introduction->fgd_business_score,
+                                $introduction->fgd_leadership_score
+                            ] as $score)
+                            <td class="p-2 border text-center">
+                                {{ $score ?? '-' }}
+                                @if($score !== null)
+                                    <span class="ml-2 px-2 py-0.5 text-xs rounded {{ scoreBadgeClass($score) }}">
+                                        {{ scoreLevel($score) }}
+                                    </span>
+                                @endif
+                            </td>
+                            @endforeach
+                        </tr>
 
-        {{-- ================= SCORE TABLE ================= --}}
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm border">
-                <thead class="bg-gray-100 text-center">
-                    <tr>
-                        <th class="p-2 border text-left"></th>
-                        <th class="p-2 border">Analytic</th>
-                        <th class="p-2 border">Business</th>
-                        <th class="p-2 border">Leadership</th>
-                    </tr>
-                </thead>
-                <tbody>
+                        <tr>
+                            <td class="p-2 border font-semibold">Interview</td>
+                            @foreach([
+                                $introduction->interview_analytic_score,
+                                $introduction->interview_business_score,
+                                $introduction->interview_leadership_score
+                            ] as $score)
+                            <td class="p-2 border text-center">
+                                {{ $score ?? '-' }}
+                                @if($score !== null)
+                                    <span class="ml-2 px-2 py-0.5 text-xs rounded {{ scoreBadgeClass($score) }}">
+                                        {{ scoreLevel($score) }}
+                                    </span>
+                                @endif
+                            </td>
+                            @endforeach
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                    {{-- FGD --}}
-                    <tr>
-                        <td class="p-2 border font-semibold">FGD</td>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500 mb-1">Recommendation</p>
+                    <p class="font-medium">{{ $introduction->rekomendasi ?? '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 mb-1">FGD Note</p>
+                    <p>{{ $introduction->fgd_note ?? '-' }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 mb-1">Interview Note</p>
+                    <p>{{ $introduction->interview_note ?? '-' }}</p>
+                </div>
+            </div>
 
-                        @foreach([
-                            $introduction->fgd_analytic_score,
-                            $introduction->fgd_business_score,
-                            $introduction->fgd_leadership_score
-                        ] as $score)
-                        <td class="p-2 border text-center">
-                            {{ $score ?? '-' }}
-                            @if($score !== null)
-                                <span class="ml-2 px-2 py-0.5 text-xs rounded {{ scoreBadgeClass($score) }}">
-                                    {{ scoreLevel($score) }}
-                                </span>
-                            @endif
-                        </td>
-                        @endforeach
-                    </tr>
-
-                    {{-- INTERVIEW --}}
-                    <tr>
-                        <td class="p-2 border font-semibold">Interview</td>
-
-                        @foreach([
-                            $introduction->interview_analytic_score,
-                            $introduction->interview_business_score,
-                            $introduction->interview_leadership_score
-                        ] as $score)
-                        <td class="p-2 border text-center">
-                            {{ $score ?? '-' }}
-                            @if($score !== null)
-                                <span class="ml-2 px-2 py-0.5 text-xs rounded {{ scoreBadgeClass($score) }}">
-                                    {{ scoreLevel($score) }}
-                                </span>
-                            @endif
-                        </td>
-                        @endforeach
-                    </tr>
-
-                </tbody>
-            </table>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm pt-4 border-t">
+                <div>
+                    <p class="text-gray-500">PIC</p>
+                    <p class="font-semibold">{{ $introduction->pic ?? '-' }}</p>
+                </div>
+            </div>
+            @else
+                <p class="text-gray-400">No introduction data</p>
+            @endif
         </div>
 
-        {{-- ================= NOTES & RECOMMENDATION ================= --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div>
-                <p class="text-gray-500 mb-1">Recommendation</p>
-                <p class="font-medium">{{ $introduction->rekomendasi ?? '-' }}</p>
-            </div>
-
-            <div>
-                <p class="text-gray-500 mb-1">FGD Note</p>
-                <p>{{ $introduction->fgd_note ?? '-' }}</p>
-            </div>
-
-            <div>
-                <p class="text-gray-500 mb-1">Interview Note</p>
-                <p>{{ $introduction->interview_note ?? '-' }}</p>
-            </div>
-        </div>
-
-        {{-- ================= DOCUMENT & PIC ================= --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm pt-4 border-t">
-            <div>
-                <p class="text-gray-500">PIC</p>
-                <p class="font-semibold">{{ $introduction->pic ?? '-' }}</p>
-            </div>
-        </div>
-
-        @else
-            <p class="text-gray-400">No introduction data</p>
-        @endif
-    </div>
-
-
-        {{-- ================= ONBOARDING CHECKLIST ================= --}}
+        {{-- ================= ONBOARDING ================= --}}
         <div class="bg-white shadow rounded p-6">
-            <h3 class="text-lg font-semibold mb-4">
-                Onboarding Checklist (6 Months)
-            </h3>
+            <h3 class="text-lg font-semibold mb-4">Onboarding Checklist (6 Months)</h3>
             @if($isAutoGenerated)
                 <div class="mb-3 inline-flex items-center gap-2 px-3 py-1 rounded bg-blue-100 text-blue-800 text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
                     Auto generated onboarding checklist
                 </div>
             @endif
             <canvas id="onboardingChart" height="120"></canvas>
         </div>
 
-    @if($development)
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {{-- LEFT: CHART --}}
-        <div class="bg-gray-50 border rounded-lg p-4 flex items-center justify-center">
-            <canvas id="developmentChart" class="max-h-[260px]"></canvas>
-        </div>
-
-        {{-- RIGHT: TABLE --}}
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm border">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-2 border">Competency</th>
-                        <th class="p-2 border text-center">Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td class="p-2 border">Supervisory Skill</td><td class="p-2 border text-center">{{ $development->rso_supervisory_skill }}</td></tr>
-                    <tr><td class="p-2 border">Retail Salesmanship</td><td class="p-2 border text-center">{{ $development->rso_retail_salesmanship }}</td></tr>
-                    <tr><td class="p-2 border">Customer Service Loyalty</td><td class="p-2 border text-center">{{ $development->rso_customer_service_loyalty }}</td></tr>
-                    <tr><td class="p-2 border">Product Merchandising</td><td class="p-2 border text-center">{{ $development->rso_product_merchandising }}</td></tr>
-                    <tr><td class="p-2 border">Visual Merchandising</td><td class="p-2 border text-center">{{ $development->rso_visual_merchandising }}</td></tr>
-                    <tr><td class="p-2 border">Retail Store Promotion</td><td class="p-2 border text-center">{{ $development->rso_retail_store_promotion }}</td></tr>
-                    <tr><td class="p-2 border">Financial Perspective</td><td class="p-2 border text-center">{{ $development->rso_store_financial_perspective }}</td></tr>
-                    <tr><td class="p-2 border">General Strategy</td><td class="p-2 border text-center">{{ $development->rso_store_general_checkup_strategy }}</td></tr>
-                </tbody>
-            </table>
-
-            <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
-                <div><strong>Learning Hours:</strong> {{ $development->learning_hours }}</div>
-                <div><strong>Nilai NGECAS:</strong> {{ $development->nilai_ngecas }}</div>
-                <div><strong>Compulsory:</strong> {{ $development->compulsory_training }}</div>
-                <div><strong>Optional:</strong> {{ $development->optional_training }}</div>
-            </div>
-
-            <div class="mt-2 text-sm">
-                <strong>Development Program:</strong> {{ $development->development_program ?? '-' }}
-            </div>
-        </div>
-
     </div>
-    @endif
 
+    {{-- ================= RIGHT COLUMN ================= --}}
+    <div class="space-y-6">
 
-        {{-- ================= MENTORING ================= --}}
-        <div class="bg-white shadow rounded p-6">
-            <h3 class="text-lg font-semibold mb-4">Mentoring Records</h3>
+        {{-- ================= DEVELOPMENT ================= --}}
+        @if($development)
+        <div class="grid grid-cols-1 gap-6 bg-white shadow rounded p-6">
+            <div class="bg-gray-50 border rounded-lg p-4 flex justify-center">
+                <canvas id="developmentChart" class="max-h-[260px]"></canvas>
+            </div>
 
-            @if($mentoring->count())
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm border">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="p-2 border">Date</th>
-                                <th class="p-2 border">Mentor</th>
-                                <th class="p-2 border">Store</th>
-                                <th class="p-2 border">Notes</th>
-                                <th class="p-2 border">HR Notes</th>
-                                <th class="p-2 border text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($mentoring as $m)
-                                <tr>
-                                    <td class="p-2 border">
-                                        {{ $m->created_at?->format('d M Y') ?? '-' }}
-                                    </td>
-                                    <td class="p-2 border">
-                                        {{ $m->mentor_name ?? '-' }}
-                                    </td>
-                                    <td class="p-2 border">
-                                        {{ $m->store->name ?? '-' }}
-                                    </td>
-                                    <td class="p-2 border">
-                                        {{ $m->notes ?? '-' }}
-                                    </td>
-                                    <td class="p-2 border">
-                                        {{ $m->notes_hr ?? '-' }}
-                                    </td>
-                                    <td class="p-2 border text-center">
-                                        @if($m->status === 'verified')
-                                            <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                                                Verified
-                                            </span>
-                                        @elseif($m->status === 'pending')
-                                            <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-                                                Pending
-                                            </span>
-                                        @else
-                                            <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">
-                                                {{ ucfirst($m->status) }}
-                                            </span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2 border">Competency</th>
+                            <th class="p-2 border text-center">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="p-2 border">Supervisory Skill</td><td class="p-2 border text-center">{{ $development->rso_supervisory_skill }}</td></tr>
+                        <tr><td class="p-2 border">Retail Salesmanship</td><td class="p-2 border text-center">{{ $development->rso_retail_salesmanship }}</td></tr>
+                        <tr><td class="p-2 border">Customer Service Loyalty</td><td class="p-2 border text-center">{{ $development->rso_customer_service_loyalty }}</td></tr>
+                        <tr><td class="p-2 border">Product Merchandising</td><td class="p-2 border text-center">{{ $development->rso_product_merchandising }}</td></tr>
+                        <tr><td class="p-2 border">Visual Merchandising</td><td class="p-2 border text-center">{{ $development->rso_visual_merchandising }}</td></tr>
+                        <tr><td class="p-2 border">Retail Store Promotion</td><td class="p-2 border text-center">{{ $development->rso_retail_store_promotion }}</td></tr>
+                        <tr><td class="p-2 border">Financial Perspective</td><td class="p-2 border text-center">{{ $development->rso_store_financial_perspective }}</td></tr>
+                        <tr><td class="p-2 border">General Strategy</td><td class="p-2 border text-center">{{ $development->rso_store_general_checkup_strategy }}</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
+                    <div><strong>Learning Hours:</strong> {{ $development->learning_hours }}</div>
+                    <div><strong>Nilai NGECAS:</strong> {{ $development->nilai_ngecas }}</div>
+                    <div><strong>Compulsory:</strong> {{ $development->compulsory_training }}</div>
+                    <div><strong>Optional:</strong> {{ $development->optional_training }}</div>
                 </div>
 
-                {{-- SUMMARY --}}
-                <div class="mt-4 text-sm text-gray-700">
-                    <strong>Total Mentoring:</strong>
-                    {{ $mentoring->count() }} |
-                    <strong>Verified:</strong>
-                    {{ $mentoring->where('status','verified')->count() }}
+                <div class="mt-2 text-sm">
+                    <strong>Development Program:</strong> {{ $development->development_program ?? '-' }}
                 </div>
-
-            @else
-                <p class="text-gray-400">No mentoring records available</p>
-            @endif
+            </div>
         </div>
+        @endif
+
+    {{-- ================= MENTORING ================= --}}
+    <div class="bg-white shadow rounded p-6">
+        <h3 class="text-lg font-semibold mb-4">Mentoring Records</h3>
+
+        @if($mentoring->count())
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2 border">Date</th>
+                            <th class="p-2 border">Mentor</th>
+                            <th class="p-2 border">Store</th>
+                            <th class="p-2 border">Notes</th>
+                            <th class="p-2 border">HR Notes</th>
+                            <th class="p-2 border text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($mentoring as $m)
+                            <tr>
+                                <td class="p-2 border">
+                                    {{ $m->created_at?->format('d M Y') ?? '-' }}
+                                </td>
+                                <td class="p-2 border">
+                                    {{ $m->mentor_name ?? '-' }}
+                                </td>
+                                <td class="p-2 border">
+                                    {{ $m->store->name ?? '-' }}
+                                </td>
+                                <td class="p-2 border">
+                                    {{ $m->notes ?? '-' }}
+                                </td>
+                                <td class="p-2 border">
+                                    {{ $m->notes_hr ?? '-' }}
+                                </td>
+                                <td class="p-2 border text-center">
+                                    @if($m->status === 'verified')
+                                        <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
+                                            Verified
+                                        </span>
+                                    @elseif($m->status === 'pending')
+                                        <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
+                                            Pending
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">
+                                            {{ ucfirst($m->status) }}
+                                        </span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 text-sm text-gray-700">
+                <strong>Total Mentoring:</strong>
+                {{ $mentoring->count() }} |
+                <strong>Verified:</strong>
+                {{ $mentoring->where('status','verified')->count() }}
+            </div>
+        @else
+            <p class="text-gray-400">No mentoring records available</p>
+        @endif
+    </div>
 
 
-        {{-- ================= KPI ================= --}}
-        <div class="bg-white shadow rounded p-6">
-            <h3 class="text-lg font-semibold mb-4">Performance (KPI)</h3>
-            <canvas id="kpiChart" height="120"></canvas>
-            @if($evaluation)
+    {{-- ================= KPI ================= --}}
+    <div class="bg-white shadow rounded p-6 space-y-4">
+        <h3 class="text-lg font-semibold">Performance (KPI)</h3>
+
+        {{-- KPI CHART --}}
+        <canvas id="kpiChart" height="120"></canvas>
+
+        @if($evaluation)
+            {{-- KPI TABLE --}}
             <div class="overflow-x-auto mt-4">
                 <table class="w-full text-sm border">
                     <thead class="bg-gray-100">
@@ -330,21 +312,29 @@
                         </tr>
                     </tbody>
                 </table>
-
-                @if($evaluation->assessment_link)
-                    <p class="mt-2 text-sm">
-                        <strong>Assessment Link:</strong>
-                        <a href="{{ $evaluation->assessment_link }}" class="text-blue-600 underline" target="_blank">
-                            View Assessment
-                        </a>
-                    </p>
-                @endif
             </div>
-            @endif
 
-        </div>
+            {{-- ASSESSMENT LINK --}}
+            @if($evaluation->assessment_link)
+                <p class="text-sm mt-2">
+                    <strong>Assessment Link:</strong>
+                    <a href="{{ $evaluation->assessment_link }}"
+                    target="_blank"
+                    class="text-blue-600 underline">
+                        View Assessment
+                    </a>
+                </p>
+            @endif
+        @else
+            <p class="text-gray-400 text-sm">No KPI data available</p>
+        @endif
+</div>
+
 
     </div>
+
+</div>
+
 
     {{-- ================= CHART JS ================= --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
