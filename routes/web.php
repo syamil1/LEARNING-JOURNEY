@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\ChecklistController as OnboardingChecklistController;
 use App\Http\Controllers\Admin\EmployeeReportController;
+use App\Http\Controllers\Sales\SalesReportController;
+
 
 use Illuminate\Support\Facades\Route;
     Route::get('/', function () {
@@ -92,9 +94,12 @@ use Illuminate\Support\Facades\Route;
         Route::get(  '/onboarding-checklist/{employeeId}/{month}/{week}',[UserChecklistController::class, 'show'])->name('onboarding.checklist.show');
         Route::post('/onboarding-checklist/{employeeId}/{month}/{week}',[UserChecklistController::class, 'store'])->name('onboarding.checklist.store');
         });
-
-
 });
+
+Route::middleware(['auth', 'role:sales_superintendent'])->prefix('sales')->name('sales.')->group(function () {
+        Route::get('/report', [SalesReportController::class, 'show'])->name('report.show');
+
+    });
 
 
 

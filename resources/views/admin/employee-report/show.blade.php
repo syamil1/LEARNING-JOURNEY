@@ -43,22 +43,72 @@
             <h3 class="text-lg font-semibold mb-4">Employee Information</h3>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                    <p class="text-gray-500">Employee ID</p>
-                    <p class="font-semibold">{{ $employee->employee_id }}</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Name</p>
-                    <p class="font-semibold">{{ $employee->name }}</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Store</p>
-                    <p class="font-semibold">{{ $employee->store->name ?? '-' }}</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Job</p>
-                    <p class="font-semibold">{{ $employee->job->name ?? '-' }}</p>
-                </div>
+        <div>
+            <p class="text-gray-500">Employee ID</p>
+            <p class="font-semibold">{{ $employee->employee_id }}</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Name</p>
+            <p class="font-semibold">{{ $employee->name }}</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Contract Type</p>
+            <p class="font-semibold">{{ $employee->contract_type ?? '-' }}</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Region</p>
+            <p class="font-semibold">{{ $employee->region->name ?? '-' }}</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Store</p>
+            <p class="font-semibold">{{ $employee->store->name ?? '-' }}</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Section</p>
+            <p class="font-semibold">{{ $employee->section->name ?? '-' }}</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Job</p>
+            <p class="font-semibold">{{ $employee->job->name ?? '-' }}</p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Birthday</p>
+            <p class="font-semibold">
+                {{ $employee->birthday ? \Carbon\Carbon::parse($employee->birthday)->format('d M Y') : '-' }}
+            </p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Joining Date</p>
+            <p class="font-semibold">
+                {{ $employee->joining_date ? \Carbon\Carbon::parse($employee->joining_date)->format('d M Y') : '-' }}
+            </p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Initial Employment</p>
+            <p class="font-semibold">
+                {{ $employee->initial_employment_date
+                    ? \Carbon\Carbon::parse($employee->initial_employment_date)->format('d M Y')
+                    : '-' }}
+            </p>
+        </div>
+
+        <div>
+            <p class="text-gray-500">Permanent Date</p>
+            <p class="font-semibold">
+                {{ $employee->permanent_date
+                    ? \Carbon\Carbon::parse($employee->permanent_date)->format('d M Y')
+                    : '-' }}
+            </p>
+        </div>
             </div>
         </div>
 
@@ -186,15 +236,33 @@
                     </tbody>
                 </table>
 
-                <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
-                    <div><strong>Learning Hours:</strong> {{ $development->learning_hours }}</div>
-                    <div><strong>Nilai NGECAS:</strong> {{ $development->nilai_ngecas }}</div>
-                    <div><strong>Compulsory:</strong> {{ $development->compulsory_training }}</div>
-                    <div><strong>Optional:</strong> {{ $development->optional_training }}</div>
-                </div>
-
-                <div class="mt-2 text-sm">
-                    <strong>Development Program:</strong> {{ $development->development_program ?? '-' }}
+                <div class="mt-6 overflow-x-auto">
+                    <table class="w-full text-sm border">
+                        <tbody>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-semibold w-1/3">Learning Hours</td>
+                                <td class="p-2 border">{{ $development->learning_hours }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border font-semibold">Nilai NGECAS</td>
+                                <td class="p-2 border">{{ $development->nilai_ngecas }}</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-semibold">Compulsory Training</td>
+                                <td class="p-2 border">{{ $development->compulsory_training }}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border font-semibold">Optional Training</td>
+                                <td class="p-2 border">{{ $development->optional_training }}</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-semibold">Development Program</td>
+                                <td class="p-2 border">
+                                    {{ $development->development_program ?? '-' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

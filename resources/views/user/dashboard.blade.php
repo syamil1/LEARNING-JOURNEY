@@ -65,7 +65,7 @@
 
 {{-- LIST SUPERVISOR --}}
 <div class="bg-white p-6 rounded shadow">
-    <h3 class="text-lg font-semibold mb-4">Supervisor Evaluation</h3>
+    <h3 class="text-lg font-semibold mb-4">Sales Superintendent List</h3>
 
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -80,7 +80,6 @@
                     <th>Total Mentoring</th>
                     <th>Avg Development</th>
                     <th>Assessment</th>
-                    <th>Action</th>
                 </tr>
             </thead>
 
@@ -118,7 +117,15 @@
 
                         {{-- MENTORING --}}
                         <td>
-                            {{ $ev->total_mentoring > 0 ? $ev->total_mentoring.'x' : '0' }}
+                            @if ($ev->total_mentoring > 0)
+                                <span class="text-green-600 font-semibold">
+                                    {{ $ev->total_mentoring }}x
+                                </span>
+                            @else
+                                <span class="text-gray-400">
+                                    0
+                                </span>
+                            @endif
                         </td>
 
                         {{-- DEVELOPMENT --}}
@@ -142,15 +149,6 @@
                                 -
                             @endif
                         </td>
-
-                        {{-- ACTION --}}
-                        <td>
-                            <a href="{{ route('admin.evaluations.edit', $ev->id) }}"
-                               class="text-indigo-600 hover:underline">
-                                Edit
-                            </a>
-                        </td>
-
                     </tr>
                 @empty
                     <tr>

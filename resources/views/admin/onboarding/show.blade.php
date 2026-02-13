@@ -35,9 +35,9 @@
                             class="border rounded p-3 w-full
                                 {{ $monthStatus === 'approved'
                                     ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                                    : '' }}">
-                            {{ $allChecklists->first()->notes_hr ?? '' }}
+                                    : '' }}">{{ $allChecklists->first()->notes_hr ?? '' }}
                         </textarea>
+
 
                         @if($monthStatus === 'approved')
                             <p class="text-xs text-gray-500 mt-1">
@@ -64,110 +64,122 @@
                 </form>
             </div>
 
+        <div class="max-w-6xl mx-auto px-6">
+
             {{-- LOOP SEMUA MINGGU --}}
-            @foreach($allChecklists as $weekChecklist)
-            <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+            @foreach ($allChecklists as $weekChecklist)
 
-                @php
-                    $data = $weekChecklist->checklist_json
-                @endphp
+                {{-- CARD PER WEEK --}}
+                <div class="bg-white shadow-md rounded-lg p-6 mb-8">
 
-                {{-- HEADER INFO --}}
-                <div class="mb-6 border-b pb-4">
-                    <h1 class="text-2xl font-bold text-gray-900">
-                        Week {{ $weekChecklist->week }} — {{ $data['title'] ?? 'No Title' }}
-                    </h1>
+                    @php
+                        $data = $weekChecklist->checklist_json ?? [];
+                    @endphp
 
-                    <div class="text-sm text-gray-500 mt-1">
-                        Employee:
-                        <span class="font-semibold text-gray-700">
-                            {{ $weekChecklist->employee->name ?? 'Unknown Employee' }}
-                        </span>
-                        <br>
-                        Month: <span class="font-semibold">{{ $weekChecklist->month }}</span>
-                    </div>
-                </div>
+                    {{-- HEADER INFO --}}
+                    <div class="mb-6 border-b pb-4">
+                        <h1 class="text-2xl font-bold text-gray-900">
+                            Week {{ $weekChecklist->week }} — {{ $data['title'] ?? 'No Title' }}
+                        </h1>
 
-                {{-- CHECKLIST ITEMS --}}
-                @if(!empty($data['items']))
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                            <span class="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-                            Checklist Items
-                        </h3>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach($data['items'] as $item)
-                            <div class="p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
-                                <div class="text-gray-700 font-semibold">
-                                    {{ $item['text'] ?? '-' }}
-                                </div>
-
-                                <input type="checkbox" disabled
-                                    {{ !empty($item['checked']) && $item['checked'] ? 'checked' : '' }}
-                                    class="h-4 w-4 text-blue-600 border-gray-300 rounded">
-                            </div>
-                            @endforeach
+                        <div class="text-sm text-gray-500 mt-1">
+                            Employee:
+                            <span class="font-semibold text-gray-700">
+                                {{ $weekChecklist->employee->name ?? 'Unknown Employee' }}
+                            </span>
+                            <br>
+                            Month:
+                            <span class="font-semibold text-gray-700">
+                                {{ $weekChecklist->month }}
+                            </span>
                         </div>
                     </div>
-                @endif
 
-                {{-- MANDATORY TASKS --}}
-                @if(!empty($data['mandatory_tasks']))
+                    {{-- CHECKLIST ITEMS --}}
+                    @if (!empty($data['items']))
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                <span class="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+                                Checklist Items
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @foreach ($data['items'] as $item)
+                                    <div class="p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
+                                        <div class="text-gray-700 font-semibold">
+                                            {{ $item['text'] ?? '-' }}
+                                        </div>
+
+                                        <input type="checkbox" disabled
+                                            {{ !empty($item['checked']) && $item['checked'] ? 'checked' : '' }}
+                                            class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- MANDATORY TASKS --}}
+                    @if (!empty($data['mandatory_tasks']))
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                                Mandatory Tasks
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @foreach ($data['mandatory_tasks'] as $task)
+                                    <div class="p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
+                                        <div class="text-gray-700 font-semibold">
+                                            {{ $task['text'] ?? '-' }}
+                                        </div>
+
+                                        <input type="checkbox" disabled
+                                            {{ !empty($task['checked']) && $task['checked'] ? 'checked' : '' }}
+                                            class="h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- NOTES STORE MANAGER --}}
                     <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                            <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                            Mandatory Tasks
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                            <span class="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                            Notes from Store Manager
                         </h3>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            @foreach($data['mandatory_tasks'] as $task)
-                            <div class="p-4 border rounded-lg bg-gray-50 flex items-center justify-between">
-                                <div class="text-gray-700 font-semibold">
-                                    {{ $task['text'] ?? '-' }}
-                                </div>
-
-                                <input type="checkbox" disabled
-                                    {{ !empty($task['checked']) && $task['checked'] ? 'checked' : '' }}
-                                    class="h-4 w-4 text-yellow-600 border-gray-300 rounded">
-                            </div>
-                            @endforeach
+                        <div class="bg-gray-50 p-4 border rounded text-gray-700">
+                            {{ $weekChecklist->notes_store_manager ?: '-' }}
                         </div>
                     </div>
-                @endif
 
-            {{-- NOTES STORE MANAGER --}}
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
-                    <span class="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
-                    Notes from Store Manager
-                </h3>
+                    {{-- META INFO --}}
+                    <div class="space-y-1 text-sm text-gray-500">
+                        <div>
+                            <span class="font-semibold text-gray-700">Filled At:</span>
+                            {{ $weekChecklist->created_at->format('d M Y, H:i') }}
+                        </div>
 
-                <div class="bg-gray-50 p-4 border rounded text-gray-700">
-                    {{ $weekChecklist->notes_store_manager ?: '-' }}
+                        <div>
+                            <span class="font-semibold text-gray-700">Last Changes:</span>
+                            {{ $weekChecklist->updated_at->format('d M Y, H:i') }}
+                        </div>
+
+                        <div>
+                            <span class="font-semibold text-gray-700">Filled By:</span>
+                            {{ $weekChecklist->filled_by ?: '-' }}
+                        </div>
+                    </div>
+
                 </div>
-            </div>
+                {{-- END CARD --}}
 
-            {{-- CREATED AT --}}
-            <div class="mb-2 text-sm text-gray-500">
-                <span class="font-semibold text-gray-700">Filled At:</span>
-                {{ $weekChecklist->created_at->format('d M Y, H:i') }}
-            </div>
-
-            {{-- UPDATED AT --}}
-            <div class="mb-2 text-sm text-gray-500">
-                <span class="font-semibold text-gray-700">Last Changes:</span>
-                {{ $weekChecklist->updated_at->format('d M Y, H:i') }}
-            </div>
-
-            {{-- FILLED BY --}}
-            <div class="mb-4 text-sm text-gray-500">
-                <span class="font-semibold text-gray-700">Filled By:</span>
-                {{ $weekChecklist->filled_by ?: '-' }}
-            </div>
             @endforeach
+
         </div>
-    </div>
+        {{-- END WRAPPER --}}
 
 
     <script>

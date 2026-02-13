@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -45,6 +46,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+        const ROLE_ADMIN = 'admin';
+        const ROLE_STORE_MANAGER = 'user';
+        const ROLE_SALES_SUPERINTENDENT = 'sales_superintendent';
 
     public function store()
     {

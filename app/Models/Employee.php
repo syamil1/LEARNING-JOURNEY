@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\DevelopmentScore;
+use App\Models\EmployeeEvaluation;
 
 
 class Employee extends Model
@@ -68,6 +69,11 @@ class Employee extends Model
             'employee_id',   
             'employee_id'    
         );
+    }
+
+    public function evaluation()
+    {
+        return $this->hasOne(EmployeeEvaluation::class, 'employee_id');
     }
 
     public function getOnboardingProgressAttribute()

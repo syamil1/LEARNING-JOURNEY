@@ -102,54 +102,86 @@
         </script>
 
 
-    <table class="min-w-full border text-sm">
-        <thead>
-            <tr class="bg-gray-100">
-                <th class="p-2 border">Employee</th>
-                <th class="p-2 border">Store</th>
-                <th class="p-2 border">Gramedia Daily Store</th>
-                <th class="p-2 border">Avg RSO Score</th>
-                <th class="p-2 border">Learning Hours</th> 
-                <th class="p-2 border">Nilai NGECAS</th>
-                <th class="p-2 border">Actions</th>
-            </tr>
-        </thead>
+<div class="bg-white shadow-md rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-gray-700">
 
-    <tbody>
-        @foreach ($scores as $score)
-            <tr>
-                <td class="border p-2">{{ $score->employee->name ?? '-' }}</td>
-                <td class="border p-2">{{ $score->employee->store->name ?? '-' }}</td>
-                <td class="border p-2">{{ $score->gramedia_daily_store }}</td>
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                <tr>
+                    <th class="px-4 py-3 text-left">Employee</th>
+                    <th class="px-4 py-3 text-left">Store</th>
+                    <th class="px-4 py-3 text-left">Gramedia Daily Store</th>
+                    <th class="px-4 py-3 text-left">Avg RSO Score</th>
+                    <th class="px-4 py-3 text-left">Learning Hours</th>
+                    <th class="px-4 py-3 text-left">Nilai NGECAS</th>
+                    <th class="px-4 py-3 text-left">Actions</th>
+                </tr>
+            </thead>
 
-                <!-- Rata-rata RSO -->
-                <td class="border p-2">{{ $score->rso_average }}</td>
+            <tbody class="divide-y divide-gray-200">
+            @foreach ($scores as $score)
+                <tr
+                    onclick="window.location='{{ route('admin.development.show', $score->id) }}'"
+                    class="cursor-pointer hover:bg-blue-50 transition duration-200 group"
+                >
 
-                <td class="border p-2">{{ $score->learning_hours }}</td>
-                <td class="border p-2">{{ $score->nilai_ngecas }}</td>
+                    <td class="px-4 py-3 font-medium text-gray-900 group-hover:text-blue-700 transition">
+                        {{ $score->employee->name ?? '-' }}
+                    </td>
 
-                <td class="border p-2 flex gap-2">
-                    <a href="{{ route('admin.development.show', $score->id) }}"
-                        class="px-3 py-1 bg-blue-600 text-white rounded">View</a>
+                    <td class="px-4 py-3 group-hover:text-blue-700 transition">
+                        {{ $score->employee->store->short_name ?? $score->employee->store->name ?? '-' }}
+                    </td>
 
-                    <a href="{{ route('admin.development.edit', $score->id) }}"
-                        class="px-3 py-1 bg-yellow-500 text-white rounded">Edit</a>
+                    <td class="px-4 py-3 group-hover:text-blue-700 transition">
+                        {{ $score->gramedia_daily_store }}
+                    </td>
 
-                    <form action="{{ route('admin.development.destroy', $score->id) }}"
-                        method="POST" onsubmit="return confirm('Are you sure?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="px-3 py-1 bg-red-600 text-white rounded">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
-    <div class="mt-4">
+                    <td class="px-4 py-3 font-semibold text-indigo-600">
+                        {{ $score->rso_average }}
+                    </td>
+
+                    <td class="px-4 py-3 group-hover:text-blue-700 transition">
+                        {{ $score->learning_hours }}
+                    </td>
+
+                    <td class="px-4 py-3 group-hover:text-blue-700 transition">
+                        {{ $score->nilai_ngecas }}
+                    </td>
+
+                    {{-- ACTION --}}
+                    <td class="px-4 py-3" onclick="event.stopPropagation();">
+                        <div class="flex gap-2">
+
+                            <a href="{{ route('admin.development.edit', $score->id) }}"
+                            class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+                                Edit
+                            </a>
+
+                            <form action="{{ route('admin.development.destroy', $score->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Are you sure?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                                    Delete
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+
+        </table>
+    </div>
+
+    <div class="p-4 border-t">
         {{ $scores->links() }}
     </div>
-    </div>
+</div>
+
 <!-- IMPORT CSV MODAL -->
 <div id="importModal"
      class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">

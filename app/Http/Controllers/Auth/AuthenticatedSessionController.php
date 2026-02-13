@@ -33,6 +33,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
+        if ($user->role === 'sales_superintendent') {
+        return redirect()->route('sales.report.show');
+        }
+
         return redirect()->route('user.dashboard');
     }
 

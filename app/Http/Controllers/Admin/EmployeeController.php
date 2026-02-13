@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Employee;
 use App\Models\Introduction;
 use App\Models\Region;
@@ -66,8 +68,6 @@ class EmployeeController extends Controller
     }
 
 
-
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -83,11 +83,22 @@ class EmployeeController extends Controller
             'joining_date' => 'nullable|date',
             'permanent_date' => 'nullable|date',
         ]);
-                
-        Employee::create($validated);
 
-        return redirect()->route('admin.employees.index')->with('success', 'Employee created successfully');
+        $employee = Employee::create($validated);
+
+        User::create([
+            'name' => $employee->name,
+            'email' => (string) $validated['employee_id'],
+            'password' => Hash::make('12345678'),
+            'role' => User::ROLE_SALES_SUPERINTENDENT,
+        ]);
+
+
+        return redirect()->route('admin.employees.index')
+            ->with('success', 'Employee Created & Account Generated');
+
     }
+
 
     public function edit(Employee $employee)
     {
@@ -123,12 +134,22 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee)
     {
+        DB::transaction(function () use ($employee) {
 
-    
-        $employee->delete();
-        return redirect()->route('admin.employees.index')->with('success', 'Employee deleted successfully');
-        
+            User::where('email', $employee->employee_id)->delete();
+
+            $employee->introduction()->delete();
+            $employee->mentorings()->delete();
+            $employee->onboardingChecklists()->delete();
+            $employee->developmentScore()->delete();
+
+            $employee->delete();
+        });
+
+        return redirect()->route('admin.employees.index')
+            ->with('success', 'Employee and related data deleted successfully');
     }
+
 
 private function parseDate($value)
 {
@@ -227,6 +248,16 @@ public function import(Request $request)
                 'created_at'              => now(),
                 'updated_at'              => now(),
             ]);
+
+        
+        if (!User::where('email', $employeeId)->exists()) {
+            User::create([
+                'name' => trim($row[1]),
+                'email' => $employeeId,
+                'password' => Hash::make('12345678'),
+                'role' => User::ROLE_SALES_SUPERINTENDENT,
+            ]);
+        }
 
             $created++;
         }

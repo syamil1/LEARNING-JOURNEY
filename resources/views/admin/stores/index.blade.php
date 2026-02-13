@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-xl mx-auto px-4">
+        <div class="max-w-5xl mx-auto px-4">
 
             {{-- FLASH MESSAGE --}}
             @if(session('success'))
@@ -55,83 +55,93 @@
 
             </form>
 
-            <!-- TABLE -->
-            <div class="bg-white shadow-md rounded-lg p-4">
-                <table class="min-w-full">
-                    <thead>
-                        <tr class="border-b bg-gray-100">
-                            <th class="p-2 text-left">Store Name</th>
-                            <th class="p-2 text-left">Region</th>
-                            <th class="p-2 text-left">Actions</th>
-                        </tr>
-                    </thead>
+<!-- TABLE -->
+<div class="bg-white shadow-md rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-black text-sm">
 
-                    <tbody>
-                    @foreach($stores as $store)
-                        <tr class="border-b">
-                            <td class="p-2">
-                                <div class="font-medium text-gray-800">
-                                    {{ $store->name }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    Store ID: {{ $store->id }}
-                                </div>
-                            </td>
+            <thead class="bg-gray-100 border-b">
+                <tr>
+                    <th class="px-4 py-3 text-left font-semibold">Store Name</th>
+                    <th class="px-4 py-3 text-left font-semibold">Region</th>
+                    <th class="px-4 py-3 text-left font-semibold">Actions</th>
+                </tr>
+            </thead>
 
-                            <td class="p-2">
-                                <div class="font-medium text-gray-800">
-                                    {{ $store->region->name }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    Region ID: {{ $store->region->id }}
-                                </div>
-                            </td>
+            <tbody class="divide-y divide-gray-200">
+            @foreach($stores as $store)
+                <tr class="hover:bg-gray-50 transition duration-200">
 
+                    {{-- STORE --}}
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-800">
+                            {{ $store->name }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Store ID: {{ $store->id }}
+                        </div>
+                    </td>
 
-                            <td class="p-2 flex gap-2 flex-wrap">
+                    {{-- REGION --}}
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-gray-800">
+                            {{ $store->region->name }}
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Region ID: {{ $store->region->id }}
+                        </div>
+                    </td>
 
-                                {{-- EDIT --}}
-                                <a href="{{ route('admin.stores.edit', $store->id) }}"
-                                    class="px-3 py-1 border border-yellow-500 text-yellow-500 rounded hover:bg-yellow-500 hover:text-white transition">
-                                    Edit
-                                </a>
+                    {{-- ACTION --}}
+                    <td class="px-4 py-3">
+                        <div class="flex gap-2 flex-wrap">
 
-                                {{-- RESET PASSWORD --}}
-                                @if($store->user)
-                                <form method="POST"
-                                    action="{{ route('admin.stores.reset-password', $store->id) }}"
-                                    onsubmit="return confirm('Reset password to default?');">
-                                    @csrf
-                                    <button type="submit"
-                                        class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
-                                        Reset Password
-                                    </button>
-                                </form>
-                                @endif
+                            {{-- EDIT --}}
+                            <a href="{{ route('admin.stores.edit', $store->id) }}"
+                               class="w-36 text-center px-3 py-1 border border-yellow-500 text-yellow-500 rounded
+                                      hover:bg-yellow-500 hover:text-white transition">
+                                Edit
+                            </a>
 
-                                {{-- DELETE --}}
-                                <form method="POST"
-                                    action="{{ route('admin.stores.destroy', $store->id) }}"
-                                    onsubmit="return confirm('Delete this store?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                        class="px-3 py-1 border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition">
-                                        Delete
-                                    </button>
-                                </form>
+                            {{-- RESET PASSWORD --}}
+                            @if($store->user)
+                            <form method="POST"
+                                  action="{{ route('admin.stores.reset-password', $store->id) }}"
+                                  onsubmit="return confirm('Reset password to default?');">
+                                @csrf
+                                <button type="submit"
+                                        class="w-36 px-3 py-1 border border-blue-600 text-blue-600 rounded
+                                               hover:bg-blue-600 hover:text-white transition">
+                                    Reset Password
+                                </button>
+                            </form>
+                            @endif
 
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
+                            {{-- DELETE --}}
+                            <form method="POST"
+                                  action="{{ route('admin.stores.destroy', $store->id) }}"
+                                  onsubmit="return confirm('Delete this store?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="w-36 px-3 py-1 border border-red-600 text-red-600 rounded
+                                               hover:bg-red-600 hover:text-white transition">
+                                    Delete
+                                </button>
+                            </form>
 
-                <div class="mt-4">
-                    {{ $stores->links() }}
-                </div>
+                        </div>
+                    </td>
 
-            </div>
-        </div>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
     </div>
+
+    <div class="p-4 border-t">
+        {{ $stores->links() }}
+    </div>
+</div>
+
 </x-app-layout>

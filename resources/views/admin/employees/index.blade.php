@@ -37,8 +37,8 @@
                 <select 
                     name="region" 
                     id="regionFilter"
-                    class="border px-3 py-2 rounded text-black">
-                    <option value="">All Regions</option>
+                    class="border px-4 py-2 rounded text-black">
+                    <option value=""> All Regions </option>
                     @foreach($regions as $region)
                         <option value="{{ $region->id }}" 
                             {{ $filterRegion == $region->id ? 'selected' : '' }}>
@@ -88,59 +88,96 @@
         </div>
     @endif
 
-            <!-- TABLE -->
-            <div class="bg-white shadow-md rounded-lg p-4">
-                <table class="min-w-full text-black ">
-                    <thead>
-                        <tr class="border-b bg-gray-100">
-                            <th class="p-2 text-left">Employee ID</th>
-                            <th class="p-2 text-left">Name</th>
-                            <th class="p-2 text-left">Contract</th>
-                            <th class="p-2 text-left">Region</th>
-                            <th class="p-2 text-left">Store</th>
-                            <th class="p-2 text-left">Job</th>
-                            <th class="p-2 text-left">Joining Date</th>
-                            <th class="p-2 text-left">Actions</th>
-                        </tr>
-                    </thead>
+ <!-- TABLE -->
+<div class="bg-white shadow-md rounded-xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-gray-700">
+            
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                <tr>
+                    <th class="px-4 py-3 text-left">Employee ID</th>
+                    <th class="px-4 py-3 text-left">Name</th>
+                    <th class="px-4 py-3 text-left">Contract</th>
+                    <th class="px-4 py-3 text-left">Region</th>
+                    <th class="px-4 py-3 text-left">Store</th>
+                    <th class="px-4 py-3 text-left">Joining Date</th>
+                    <th class="px-4 py-3 text-left">Actions</th>
+                </tr>
+            </thead>
 
-                    <tbody>
-                    @foreach($employees as $emp)
-                        <tr class="border-b">
-                            <td class="p-2">{{ $emp->employee_id }}</td>
-                            <td class="p-2">{{ $emp->name }}</td>
-                            <td class="p-2">{{ $emp->contract_type }}</td>
-                            <td class="p-2">{{ $emp->region->name }}</td>
-                            <td class="p-2">{{ $emp->store->name }}</td>
-                            <td class="p-2">{{ $emp->job->name }}</td>
-                            <td class="p-2">{{ $emp->joining_date }}</td>
-                            <td class="p-2 flex gap-2">
-                                <a href="{{ route('admin.employees.show', $emp->employee_id) }}" 
-                                class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white transition">
-                                View
-                                </a>
-                                <a href="{{ route('admin.employees.edit', $emp->employee_id) }}" 
-                                class="px-3 py-1 border border-yellow-500 text-yellow-500 rounded hover:bg-yellow-500 hover:text-white transition">
+            <tbody class="divide-y divide-gray-200">
+            @foreach($employees as $emp)
+                <tr
+                    onclick="window.location='{{ route('admin.employees.report.show', $emp) }}'"
+                    class="cursor-pointer group
+                           hover:bg-blue-50
+                           transition duration-200"
+                >
+                    <td class="px-4 py-3 font-medium text-gray-900 group-hover:text-blue-700 transition">
+                        {{ $emp->employee_id }}
+                    </td>
+
+                    <td class="px-4 py-3 font-medium text-gray-900 group-hover:text-blue-700 transition">
+                        {{ $emp->name }}
+                    </td>
+
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 text-xs rounded-full
+                            {{ $emp->contract_type === 'Permanent'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-yellow-100 text-yellow-700' }}">
+                            {{ $emp->contract_type }}
+                        </span>
+                    </td>
+
+                    <td class="px-4 py-3 text-center">
+                        {{ $emp->region->short_name ?? '-' }}
+                    </td>
+
+                    <td class="px-4 py-3">
+                        {{ $emp->store->name?? '-' }}
+                    </td>
+
+                    <td class="px-4 py-3 text-gray-600">
+                        {{ \Carbon\Carbon::parse($emp->joining_date)->format('d M Y') }}
+                    </td>
+
+                    {{-- ACTION COLUMN --}}
+                    <td class="px-4 py-3" onclick="event.stopPropagation();">
+                        <div class="flex gap-2">
+
+                            <a href="{{ route('admin.employees.edit', $emp->employee_id) }}"
+                               class="px-3 py-1 text-xs border border-yellow-500 text-yellow-600 rounded
+                                      hover:bg-yellow-500 hover:text-white transition">
                                 Edit
-                                </a>
-                                <form action="{{ route('admin.employees.destroy', $emp->employee_id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-3 py-1 border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white transition">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
+                            </a>
 
-                <div class="mt-4">
-                    {{ $employees->links() }}
-                </div>
+                            <form action="{{ route('admin.employees.destroy', $emp->employee_id) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Are you sure?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="px-3 py-1 text-xs border border-red-500 text-red-600 rounded
+                                               hover:bg-red-500 hover:text-white transition">
+                                    Delete
+                                </button>
+                            </form>
 
-            </div>
+                        </div>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-4 border-t">
+        {{ $employees->links() }}
+    </div>
+</div>
+
+
         </div>
     </div>
 
