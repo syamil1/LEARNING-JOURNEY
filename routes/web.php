@@ -76,6 +76,7 @@ use Illuminate\Support\Facades\Route;
 
         // VIEW REPORT (WEB)
         Route::get('/employees/{employee}/report',[EmployeeReportController::class, 'show'])->name('employees.report.show');
+        Route::put('/users/reset-password/{employee_id}', [EmployeeReportController::class, 'resetPassword'])->name('users.reset-password');
 
         // DOWNLOAD PDF
         Route::get('/employees/{employee}/report/pdf',[EmployeeReportController::class, 'pdf'])->name('employees.report.pdf');
@@ -93,6 +94,8 @@ use Illuminate\Support\Facades\Route;
         Route::get('/onboarding-checklist', [OnboardingChecklistController::class, 'index'])->name('onboarding.checklist.index');
         Route::get(  '/onboarding-checklist/{employeeId}/{month}/{week}',[UserChecklistController::class, 'show'])->name('onboarding.checklist.show');
         Route::post('/onboarding-checklist/{employeeId}/{month}/{week}',[UserChecklistController::class, 'store'])->name('onboarding.checklist.store');
+
+        Route::get('/report/{employee}', [EmployeeReportController::class, 'show'])->name('employees.report.show');
         });
 });
 

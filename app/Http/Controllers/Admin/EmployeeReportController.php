@@ -9,6 +9,8 @@ use App\Models\OnboardingChecklist;
 use App\Models\Mentoring;
 use App\Models\EmployeeTrainingScore;
 use App\Models\EmployeeEvaluation;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class EmployeeReportController extends Controller
@@ -57,6 +59,7 @@ class EmployeeReportController extends Controller
             'mentoring'       => Mentoring::where('employee_id', $employee->employee_id)->get(),
             'development'     => EmployeeTrainingScore::where('employee_id', $employee->employee_id)->first(),
             'evaluation'      => EmployeeEvaluation::where('employee_id', $employee->employee_id)->first(),
+            'userAccount' => User::where('email', (string)$employee->employee_id)->first(),
         ]);
     }
 
@@ -112,4 +115,14 @@ class EmployeeReportController extends Controller
         );
     }
 
-}
+    public function resetPassword($employee_id)
+    {
+        $user = User::where('email', $employee_id)->firstOrFail();
+
+        $user->update([
+            'password' => Hash::make('12345678')
+        ]);
+
+        return back()->with('success', 'Password berhasil direset ke default.');
+    }
+} 

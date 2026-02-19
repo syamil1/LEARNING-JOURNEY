@@ -6,22 +6,14 @@
             <div class="flex items-center">
 
                 <!-- Logo -->
-                <a href="{{ route('dashboard') }}" class="flex items-center">
+                <a href="{{ route('sales.report.show') }}" class="flex items-center">
                     <img src="{{ asset('image/logo.png') }}" alt="Logo" class="w-10 h-9">
                 </a>
 
                 <!-- Desktop Menu -->
                 <div class="hidden sm:flex sm:items-center sm:ms-10 space-x-8">
-                    <x-nav-link :href="route('user.dashboard')" :active="request()->routeIs('user.dashboard.*')">
+                    <x-nav-link :href="route('sales.report.show')" :active="request()->routeIs('sales.report.*')">
                         Dashboard
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('user.onboarding.checklist.index')" :active="request()->routeIs('user.onboarding.checklist.*')">
-                        Onboarding Checklist
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('user.mentoring.index')" :active="request()->routeIs('user.mentoring.*')">
-                        Mentoring
                     </x-nav-link>
                     <x-nav-link href="https://classroom.google.com/c/NzU4OTM0MTA0NzE2?cjc=t5snjb7p" target="_blank">
                         New Journey at Gramedia
@@ -77,7 +69,6 @@
                     </svg>
                 </button>
             </div>
-
         </div>
     </div>
 
@@ -89,14 +80,6 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('user.dashboard')">
                 Dashboard
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('user.onboarding.checklist.index')">
-                Onboarding Checklist
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('user.mentoring.index')">
-                Mentoring
             </x-responsive-nav-link>
         </div>
 

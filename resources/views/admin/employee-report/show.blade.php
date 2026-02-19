@@ -38,6 +38,53 @@
     {{-- ================= LEFT COLUMN ================= --}}
     <div class="space-y-6">
 
+    
+        {{-- ================= USER ACCOUNT ================= --}}
+        <div class="bg-white shadow rounded-xl p-6 border border-gray-100">
+            <h3 class="text-lg font-semibold mb-4 text-center">User Account</h3>
+
+            <div class="max-w-md mx-auto">
+                <div class="grid grid-cols-2 gap-8 text-sm text-center">
+
+                    {{-- NAME --}}
+                    <div>
+                        <p class="text-gray-500 text-xs uppercase tracking-wide">Name</p>
+                        <p class="font-semibold text-gray-800 mt-1">
+                            {{ $userAccount->name ?? '-' }}
+                        </p>
+                    </div>
+
+                    {{-- LOGIN ID --}}
+                    <div>
+                        <p class="text-gray-500 text-xs uppercase tracking-wide">Login ID</p>
+                        <p class="font-semibold text-gray-800 mt-1">
+                            {{ $userAccount->email ?? '-' }}
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- ACTION --}}
+            @if(auth()->user()->role === 'admin')
+            <div class="mt-6 flex flex-col items-center gap-3 border-t pt-4">
+
+                <form method="POST" action="{{ route('admin.users.reset-password', $employee->employee_id) }}">
+                    @csrf
+                    @method('PUT')
+
+                    <button type="submit"
+                        onclick="return confirm('Reset password ke default (12345678)?')"
+                        class="bg-yellow-500 text-white px-5 py-2 rounded-lg hover:bg-yellow-600 transition">
+                        🔄 Reset Password
+                    </button>
+                </form>
+
+            </div>
+            @endif
+        </div>
+
+
         {{-- ================= EMPLOYEE INFO ================= --}}
         <div class="bg-white shadow rounded p-6">
             <h3 class="text-lg font-semibold mb-4">Employee Information</h3>
@@ -111,6 +158,7 @@
         </div>
             </div>
         </div>
+
 
         {{-- ================= INTRODUCTION ================= --}}
         <div class="bg-white shadow rounded p-6 space-y-6">

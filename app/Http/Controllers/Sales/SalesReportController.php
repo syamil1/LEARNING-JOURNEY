@@ -10,6 +10,7 @@ use App\Models\OnboardingChecklist;
 use App\Models\Mentoring;
 use App\Models\EmployeeTrainingScore;
 use App\Models\EmployeeEvaluation;
+use App\Models\User;
 
 class SalesReportController extends Controller
 {
@@ -48,6 +49,7 @@ class SalesReportController extends Controller
             'mentoring'      => Mentoring::where('employee_id', $employee->employee_id)->get(),
             'development'    => EmployeeTrainingScore::where('employee_id', $employee->employee_id)->first(),
             'evaluation'     => EmployeeEvaluation::where('employee_id', $employee->employee_id)->first(),
+            'userAccount' => User::where('email', (string)$employee->employee_id)->first(),
         ]);
     }
 }

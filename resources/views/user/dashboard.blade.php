@@ -83,81 +83,89 @@
                 </tr>
             </thead>
 
-            <tbody>
-                @forelse ($supervisors as $ev)
-                    @php $emp = $ev->employee; @endphp
-                    <tr class="border-b">
+            <tbody class="divide-y divide-gray-200">
+            @forelse ($supervisors as $ev)
+                @php $emp = $ev->employee; @endphp
 
-                        {{-- EMPLOYEE ID --}}
-                        <td class="py-2">{{ $emp->employee_id }}</td>
+                <tr
+                    onclick="window.location='{{ route('user.employees.report.show', $emp) }}'"
+                    class="cursor-pointer hover:bg-blue-50 transition group"
+                >
 
-                        {{-- NAME --}}
-                        <td>{{ $emp->name }}</td>
+                    {{-- EMPLOYEE ID --}}
+                    <td class="py-2 px-2 font-medium text-gray-900 group-hover:text-blue-700">
+                        {{ $emp->employee_id }}
+                    </td>
 
+                    {{-- NAME --}}
+                    <td class="px-2 font-medium text-gray-900 group-hover:text-blue-700">
+                        {{ $emp->name }}
+                    </td>
 
-                        {{-- INTRO --}}
-                        <td>
-                            <span class="{{ $ev->intro_status === 'Sudah' ? 'text-green-600' : 'text-red-500' }}">
-                                {{ $ev->intro_status }}
+                    {{-- INTRO --}}
+                    <td>
+                        <span class="{{ $ev->intro_status === 'Sudah' ? 'text-green-600' : 'text-red-500' }}">
+                            {{ $ev->intro_status }}
+                        </span>
+                    </td>
+
+                    {{-- CHECKLIST --}}
+                    <td>
+                        <span class="{{ $ev->checklist_summary === '6/6'
+                            ? 'text-green-600 font-semibold'
+                            : 'text-yellow-600 font-semibold' }}">
+                            {{ $ev->checklist_summary }}
+                        </span>
+                    </td>
+
+                    {{-- KPI --}}
+                    <td>{{ $ev->kpi_june ?? '-' }}</td>
+                    <td>{{ $ev->kpi_december ?? '-' }}</td>
+
+                    {{-- MENTORING --}}
+                    <td>
+                        @if ($ev->total_mentoring > 0)
+                            <span class="text-green-600 font-semibold">
+                                {{ $ev->total_mentoring }}x
                             </span>
-                        </td>
+                        @else
+                            <span class="text-gray-400">0</span>
+                        @endif
+                    </td>
 
-                        {{-- CHECKLIST --}}
-                        <td>
-                            <span class="{{ $ev->checklist_summary === '6/6'
-                                ? 'text-green-600 font-semibold'
-                                : 'text-yellow-600 font-semibold' }}">
-                                {{ $ev->checklist_summary }}
-                            </span>
-                        </td>
+                    {{-- DEVELOPMENT --}}
+                    <td>
+                        @if ($ev->avg_development !== null)
+                            <span class="font-semibold">{{ $ev->avg_development }}</span>
+                        @else
+                            <span class="text-red-500">Pending</span>
+                        @endif
+                    </td>
 
-                        {{-- KPI --}}
-                        <td>{{ $ev->kpi_june ?? '-' }}</td>
-                        <td>{{ $ev->kpi_december ?? '-' }}</td>
+                    {{-- ❗ ASSESSMENT (tidak ikut redirect) --}}
+                    <td onclick="event.stopPropagation();">
+                        @if ($ev->assessment_link)
+                            <a href="{{ $ev->assessment_link }}"
+                            target="_blank"
+                            class="text-blue-600 hover:underline">
+                                View
+                            </a>
+                        @else
+                            -
+                        @endif
+                    </td>
 
-                        {{-- MENTORING --}}
-                        <td>
-                            @if ($ev->total_mentoring > 0)
-                                <span class="text-green-600 font-semibold">
-                                    {{ $ev->total_mentoring }}x
-                                </span>
-                            @else
-                                <span class="text-gray-400">
-                                    0
-                                </span>
-                            @endif
-                        </td>
-
-                        {{-- DEVELOPMENT --}}
-                        <td>
-                            @if ($ev->avg_development !== null)
-                                <span class="font-semibold">{{ $ev->avg_development }}</span>
-                            @else
-                                <span class="text-red-500">Pending</span>
-                            @endif
-                        </td>
-
-                        {{-- ASSESSMENT --}}
-                        <td>
-                            @if ($ev->assessment_link)
-                                <a href="{{ $ev->assessment_link }}"
-                                   target="_blank"
-                                   class="text-blue-600 hover:underline">
-                                    View
-                                </a>
-                            @else
-                                -
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="11" class="text-center py-4 text-gray-500">
-                            No evaluation data found for this store.
-                        </td>
-                    </tr>
-                @endforelse
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9" class="text-center py-4 text-gray-500">
+                        No evaluation data found for this store.
+                    </td>
+                </tr>
+            @endforelse
             </tbody>
+
+
         </table>
     </div>
 </div>
