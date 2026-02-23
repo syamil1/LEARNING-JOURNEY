@@ -1,4 +1,4 @@
-employee id;name;status;Region ID;Store ID;birthday date; initial_employment_date;joining_date;permanent date;
+employee id;name;status;Divison ID;Store ID;birthday date;ï¿½initial_employment_date;joining_date;permanent date;
 2;Test;Permanent;1;1;21/03/1998;01/04/2022;21/03/2022;01/10/2024;
 85830;test;Contract;1;1;13/08/1998;01/02/2024;15/01/2024;  ;
 3;Test;Permanent;1;1;23/07/1993;01/04/2021;17/03/2021;01/04/2023;

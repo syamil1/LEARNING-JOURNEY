@@ -29,7 +29,7 @@
                     <input                     type="text" 
                         id="employeeSearchIndex"
                         class="w-full border rounded px-4 py-2"
-                        placeholder="Ketik Employee ID atau Nama..."
+                        placeholder="Employee ID / Name..."
                     >
                     <div id="searchResultsIndex" class="mt-1 bg-white shadow rounded hidden absolute w-full z-50"></div>
                 </div>

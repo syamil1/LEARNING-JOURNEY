@@ -266,7 +266,7 @@
 
         <p class="text-sm text-gray-600 mb-4">
             Format CSV:
-            employee_id, name, contract_type, region_id, store_id, birthday date, initial_employment_date, joining_date, permanent date
+            employee_id, name, contract_type, division_id, store_id, birthday date, initial_employment_date, joining_date, permanent date
         </p>
         <a href="{{ asset('templates/Employees.csv') }}"
             download

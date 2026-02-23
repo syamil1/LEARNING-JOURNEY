@@ -63,7 +63,7 @@
             <thead class="bg-gray-100 border-b">
                 <tr>
                     <th class="px-4 py-3 text-left font-semibold">Store Name</th>
-                    <th class="px-4 py-3 text-left font-semibold">Region</th>
+                    <th class="px-4 py-3 text-left font-semibold">Division</th>
                     <th class="px-4 py-3 text-left font-semibold">Actions</th>
                 </tr>
             </thead>

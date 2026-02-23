@@ -1,308 +1,198 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Interview & FGD Result
-        </h2>
+        <h2 class="text-xl font-semibold">Interview & FGD Result</h2>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            {{-- NOTIFICATION --}}
-            @if(session('success'))
-                <div class="mb-4 bg-green-100 text-green-800 px-4 py-3 rounded">
-                    {{ session('success') }}
+    <div class="max-w-6xl mx-auto px-6 py-6">
+
+        {{-- NOTIFICATION --}}
+        @if(session('success'))
+            <div class="mb-4 p-4 rounded bg-green-100 border border-green-300 text-green-800">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- 🔎 SEARCH + ACTION --}}
+        <form method="GET" class="mb-4">
+            <div class="flex items-center justify-between gap-4">
+
+                {{-- SEARCH --}}
+                <div class="relative w-72">
+                    <label class="font-semibold">Search Employee</label>
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Employee ID / Name..."
+                        class="w-full border rounded px-3 py-2 mt-1"
+                    >
                 </div>
-            @endif
 
-            @if(session('warning'))
-                <div class="mb-4 bg-yellow-100 text-yellow-800 px-4 py-3 rounded">
-                    {!! nl2br(e(session('warning'))) !!}
-                </div>
-            @endif
+                {{-- ACTION BUTTONS --}}
+                <div class="flex gap-2">
+                    <a href="{{ route('admin.introductions.create') }}"
+                       class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                        + Add Introduction
+                    </a>
 
-            @if(session('error'))
-                <div class="mb-4 bg-red-100 text-red-800 px-4 py-3 rounded">
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="mb-4 bg-red-100 text-red-800 px-4 py-3 rounded">
-                    <ul class="list-disc pl-5">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            {{-- Search + Add Button --}} 
-            <form method="GET" class="mb-4" id="introSearchForm">
-                <div class="flex items-center justify-between">
-
-        <div class="flex gap-3 items-end">
-
-            <div class="relative">
-                <input
-                    type="text"
-                    name="search"
-                    id="introSearch"
-                    value="{{ request('search') }}"
-                    placeholder="Search NIK / Name..."
-                    class="border px-3 py-2 rounded w-64"
-                    autocomplete="off"
-                >
-
-                <div
-                    id="introSearchResults"
-                    class="hidden absolute w-full bg-white border rounded shadow mt-1 z-50">
+                    <button type="button"
+                        onclick="openImportModal()"
+                        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                        Import CSV
+                    </button>
                 </div>
             </div>
+        </form>
 
-            <button class="border border-gray-700 bg-gray-800 text-white px-4 py-2 rounded">
-                Search
-            </button>
-        </div>
-
-                    {{-- Add + Import --}}
-                    <div class="flex gap-3">
-                        <a href="{{ route('admin.introductions.create') }}"
-                           class="border border-green-700 text-green-700 px-5 py-2 rounded hover:bg-green-700 hover:text-white transition">
-                            Add Introduction
-                        </a>
-                        <button 
-                            type="button"
-                            onclick="openImportModal()"
-                            class="border border-blue-700 text-blue-700 px-5 py-2 rounded hover:bg-blue-700 hover:text-white transition">
-                            Import CSV
-                        </button>
-                    </div>
-                </div>
-            </form>
-
-                        {{-- Table --}}
-            <div class="bg-white shadow-md rounded-lg p-4 overflow-x-auto">
-                <table class="min-w-full">
-                    <thead>
-                        <tr class="border-b bg-gray-100 text-left">
-                            <th class="p-2">NIK</th>
-                            <th class="p-2">Nama</th>
-                            <th class="p-2">FGD</th>
-                            <th class="p-2">Interview</th>
-                            <th class="p-2">Joining Date</th>
-                            <th class="p-2">PIC</th>
-                            <th class="p-2">Actions</th>
+        {{-- TABLE --}}
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-gray-700">
+                    <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                        <tr>
+                            <th class="px-3 py-2 text-left">NIK</th>
+                            <th class="px-3 py-2 text-left">Name</th>
+                            <th class="px-3 py-2 text-left">FGD</th>
+                            <th class="px-3 py-2 text-left">Interview</th>
+                            <th class="px-3 py-2 text-left">Joining</th>
+                            <th class="px-3 py-2 text-left">PIC</th>
+                            <th class="px-3 py-2 text-left w-20">Action</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        @foreach($introductions as $intro)
-                        <tr class="border-b">
-                            <td class="p-2">{{ $intro->nik }}</td>
+                    <tbody class="divide-y">
+                    @foreach($introductions as $intro)
+                    <tr
+                        onclick="window.location='{{ route('admin.introductions.edit', $intro->id) }}'"
+                        class="cursor-pointer hover:bg-blue-50 transition group"
+                    >
+                        {{-- NIK --}}
+                        <td class="px-3 py-2 align-middle h-[56px] font-medium group-hover:text-blue-700">
+                            {{ $intro->nik }}
+                        </td>
 
-                            {{-- Nama dari tabel employees --}}
-                            <td class="p-2">{{ $intro->employee_name ?? '-' }}</td>
+                        {{-- NAME --}}
+                        <td class="px-3 py-2 align-middle h-[56px]">
+                            <span class="group-hover:text-blue-700 group-hover:underline">
+                                {{ $intro->employee_name ?? '-' }}
+                            </span>
+                        </td>
 
-                            <td class="p-2">
-                                @if($intro->fgd_average !== null)
-                                    <div class="font-semibold">
-                                        {{ $intro->fgd_average }}
-                                    </div>
-                                    <div class="text-xs text-gray-500">
-                                        {{ $intro->fgd_level_label ?? '-' }}
-                                    </div>
-                                @else
-                                    -
-                                @endif
-                            </td>
+                        {{-- FGD --}}
+                        <td class="px-3 py-2 align-middle h-[56px]">
+                            <div class="font-semibold text-indigo-600">
+                                {{ $intro->fgd_average ?? '-' }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ $intro->fgd_level_label ?? ' ' }}
+                            </div>
+                        </td>
 
-                            <td class="p-2">
-                                @if($intro->interview_average !== null)
-                                    <div class="font-semibold">
-                                        {{ $intro->interview_average }}
-                                    </div>
-                                    <div class="text-xs text-gray-500">
-                                        {{ $intro->interview_level_label ?? '-' }}
-                                    </div>
-                                @else
-                                    -
-                                @endif
-                            </td>
+                        {{-- INTERVIEW --}}
+                        <td class="px-3 py-2 align-middle h-[56px]">
+                            <div class="font-semibold text-indigo-600">
+                                {{ $intro->interview_average ?? '-' }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ $intro->interview_level_label ?? ' ' }}
+                            </div>
+                        </td>
 
+                        <td class="px-3 py-2 align-middle h-[56px]">
+                            {{ $intro->joining_date ?? '-' }}
+                        </td>
 
-                            <td class="p-2">{{ $intro->joining_date ?? '-' }}</td>
+                        <td class="px-3 py-2 align-middle h-[56px]">
+                            {{ $intro->pic ?? '-' }}
+                        </td>
 
-                            <td class="p-2">{{ $intro->pic }}</td>
-
-                            <td class="p-2 flex gap-2">
-                                <a href="{{ route('admin.introductions.show', $intro->id) }}"
-                                class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-600 hover:text-white">
-                                    View
-                                </a>
-
-                                <a href="{{ route('admin.introductions.edit', $intro->id) }}"
-                                class="px-3 py-1 border border-yellow-500 text-yellow-500 rounded hover:bg-yellow-500 hover:text-white">
-                                    Edit
-                                </a>
-
-                                <form action="{{ route('admin.introductions.destroy', $intro->id) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Are you sure?');">
-                                    @csrf @method('DELETE')
-                                    <button class="px-3 py-1 border border-red-600 text-red-600 rounded hover:bg-red-600 hover:text-white">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        @endforeach
+                        {{-- DELETE --}}
+                        <td class="px-3 py-2 align-middle h-[56px]" onclick="event.stopPropagation();">
+                            <form action="{{ route('admin.introductions.destroy', $intro->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('Delete?')">
+                                @csrf @method('DELETE')
+                                <button class="text-red-600 hover:underline text-sm">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
                     </tbody>
                 </table>
             </div>
 
-
-                <div class="mt-4">
-                    {{ $introductions->links() }}
-                </div>
-
+            <div class="p-3 border-t">
+                {{ $introductions->links() }}
             </div>
         </div>
     </div>
 
-    <script>
-    function openImportModal() {
-        document.getElementById('importModal').classList.remove('hidden');
-        document.getElementById('importModal').classList.add('flex');
-    }
+    {{-- 🔥 IMPORT MODAL --}}
+    <div id="importModal"
+         class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
 
-    function closeImportModal() {
-        document.getElementById('importModal').classList.add('hidden');
-        document.getElementById('importModal').classList.remove('flex');
-    }
+        <div class="bg-white rounded-lg w-full max-w-md p-6">
+            <h3 class="text-lg font-semibold mb-2">Import Introduction (CSV)</h3>
 
-    function confirmImport() {
-        if (confirm('Are you sure you want to import this CSV data?')) {
-            document.getElementById('importForm').submit();
-        }
-    }
-    document.addEventListener('DOMContentLoaded', function () {
-        const input = document.getElementById('introSearch');
-        const resultsBox = document.getElementById('introSearchResults');
-        const form = document.getElementById('introSearchForm');
+            <p class="text-sm text-gray-600 mb-4">
+                Format CSV: nik, fgd_score, interview_score, pic
+            </p>
 
-        const SEARCH_URL = "{{ route('admin.search.employees') }}";
+            <a href="{{ asset('templates/Introductions.csv') }}"
+               download
+               class="inline-block mb-3 text-sm text-blue-600 hover:underline">
+                Download CSV Template
+            </a>
 
-        async function fetchResults() {
-            const q = input.value.trim();
+            <form id="importForm"
+                  action="{{ route('admin.introductions.import') }}"
+                  method="POST"
+                  enctype="multipart/form-data">
+                @csrf
 
-            if (q.length < 1) {
-                resultsBox.innerHTML = "";
-                resultsBox.classList.add("hidden");
-                return;
-            }
+                <input type="file"
+                       name="file"
+                       accept=".csv"
+                       required
+                       class="border w-full px-3 py-2 rounded mb-4">
 
-            try {
-                const res = await fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
-                    headers: { 'Accept': 'application/json' },
-                    credentials: 'same-origin'
-                });
+                <div class="flex justify-end gap-3">
+                    <button type="button"
+                            onclick="closeImportModal()"
+                            class="px-4 py-2 border rounded hover:bg-gray-100">
+                        Cancel
+                    </button>
 
-                const data = await res.json();
-
-                if (!Array.isArray(data) || data.length === 0) {
-                    resultsBox.innerHTML =
-                        "<div class='p-3 text-gray-500'>No results</div>";
-                } else {
-                    resultsBox.innerHTML = data.map(item => `
-                        <div
-                            class="p-2 border-b hover:bg-gray-100 cursor-pointer"
-                            onclick="selectIntro('${item.employee_id}')"
-                        >
-                            <strong>${item.employee_id}</strong> - ${item.name}
-                        </div>
-                    `).join('');
-                }
-
-                resultsBox.classList.remove("hidden");
-
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        input.addEventListener('keyup', fetchResults);
-
-        document.addEventListener('click', function(e) {
-            if (!input.contains(e.target) && !resultsBox.contains(e.target)) {
-                resultsBox.classList.add("hidden");
-            }
-        });
-
-        window.selectIntro = function(value) {
-            input.value = value;
-            resultsBox.classList.add("hidden");
-            form.submit();
-        };
-    });
-    </script>
-
- <!-- IMPORT CSV MODAL -->
-<div id="importModal"
-     class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-
-    <div class="bg-white rounded-lg w-full max-w-md p-6 text-black">
-        <h3 class="text-lg font-semibold mb-2">Import Introduction (CSV)</h3>
-
-        <p class="text-sm text-gray-600 mb-4">
-            Format CSV:
-            <br>
-            <code class="text-xs">
-                nik, fgd_analytic_score, fgd_business_score, fgd_leadership_score,
-                interview_analytic_score, interview_business_score,
-                interview_leadership_score, fgd_note, interview_note,
-                mcu, psikotes, rekomendasi, pic
-            </code>
-        </p>
-
-        {{-- Download template --}}
-        <a href="{{ asset('templates/Introductions.csv') }}"
-           download
-           class="inline-block mb-3 text-sm text-blue-600 hover:underline">
-            Download CSV Template
-        </a>
-
-        <form id="importForm"
-              action="{{ route('admin.introductions.import') }}"
-              method="POST"
-              enctype="multipart/form-data">
-            @csrf
-
-            <input
-                type="file"
-                name="file"
-                accept=".csv"
-                required
-                class="border w-full px-3 py-2 rounded mb-4"
-            >
-
-            <div class="flex justify-end gap-3">
-                <button
-                    type="button"
-                    onclick="closeImportModal()"
-                    class="px-4 py-2 border rounded hover:bg-gray-100">
-                    Cancel
-                </button>
-
-                <button
-                    type="button"
-                    onclick="confirmImport()"
-                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Import
-                </button>
-            </div>
-        </form>
+                    <button type="button"
+                            onclick="confirmImport()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        Import
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
+    {{-- 🔥 MODAL SCRIPT --}}
+    <script>
+        function openImportModal() {
+            const modal = document.getElementById('importModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
 
+        function closeImportModal() {
+            const modal = document.getElementById('importModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmImport() {
+            if (confirm('Import this CSV data?')) {
+                document.getElementById('importForm').submit();
+            }
+        }
+    </script>
 </x-app-layout>

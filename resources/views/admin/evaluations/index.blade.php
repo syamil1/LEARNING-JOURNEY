@@ -3,185 +3,128 @@
         <h2 class="text-xl font-semibold">Employee Evaluation</h2>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-6xl mx-auto">
+    <div class="max-w-7xl mx-auto px-6 py-6">
 
-            {{-- SUCCESS MESSAGE --}}
-            @if(session('success'))
-                <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
+        {{-- SUCCESS MESSAGE --}}
+        @if(session('success'))
+            <div class="mb-4 p-4 rounded bg-green-100 border border-green-300 text-green-800">
+                {{ session('success') }}
+            </div>
+        @endif
 
-          <form method="GET" class="mb-4" id="evaluationSearchForm">
+        {{-- 🔎 SEARCH + ACTION --}}
+        <form method="GET" class="mb-4" id="evaluationSearchForm">
             <div class="flex items-end justify-between gap-4">
 
-                {{-- LEFT: SEARCH --}}
-                <div class="relative w-72">
-                    <label class="block text-sm font-medium mb-1">Search Employee</label>
-
+                {{-- SEARCH --}}
+                <div class="relative w-80">
+                    <label class="font-semibold">Search Employee</label>
                     <input
                         type="text"
                         name="search"
                         id="employeeSearch"
                         value="{{ $search }}"
                         placeholder="Employee ID / Name..."
-                        class="border px-3 py-2 rounded w-full text-black"
+                        class="w-full border rounded px-4 py-2 mt-1"
                         autocomplete="off"
                     >
-
-                    <div
-                        id="searchResults"
-                        class="hidden absolute w-full bg-white border rounded shadow mt-1 z-50">
-                    </div>
+                    <div id="searchResults"
+                         class="hidden absolute w-full bg-white border rounded shadow mt-1 z-50"></div>
                 </div>
 
-                {{-- RIGHT: FILTER + SEARCH BUTTON --}}
-                <div class="flex items-end gap-5">
+                {{-- RIGHT SIDE --}}
+                <div class="flex items-end gap-3">
 
                     {{-- SORT --}}
-                    <div class="relative">
-                        <label class="block text-sm font-medium mb-1 text-gray-700">
-                            Sort By
-                        </label>
+                    <select name="sort"
+                        class="border rounded px-4 py-2 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Default</option>
+                        <option value="kpi_june_desc" {{ request('sort')=='kpi_june_desc' ? 'selected' : '' }}>
+                            KPI June — Highest
+                        </option>
+                        <option value="kpi_june_asc" {{ request('sort')=='kpi_june_asc' ? 'selected' : '' }}>
+                            KPI June — Lowest
+                        </option>
+                        <option value="kpi_december_desc" {{ request('sort')=='kpi_december_desc' ? 'selected' : '' }}>
+                            KPI December — Highest
+                        </option>
+                        <option value="kpi_december_asc" {{ request('sort')=='kpi_december_asc' ? 'selected' : '' }}>
+                            KPI December — Lowest
+                        </option>
+                    </select>
 
-                        <div class="relative">
-                            <select
-                                name="sort"
-                                class="
-                                    appearance-none
-                                    w-[260px]
-                                    border border-gray-300
-                                    bg-white
-                                    text-gray-800
-                                    text-sm
-                                    rounded-lg
-                                    px-4 py-2.5
-                                    pr-10
-                                    shadow-sm
-                                    focus:outline-none
-                                    focus:ring-2 focus:ring-indigo-500
-                                    focus:border-indigo-500
-                                    transition
-                                "
-                            >
-                                <option value="">Default</option>
-
-                                <option value="kpi_june_desc" {{ request('sort')=='kpi_june_desc' ? 'selected' : '' }}>
-                                    KPI June — Highest
-                                </option>
-                                <option value="kpi_june_asc" {{ request('sort')=='kpi_june_asc' ? 'selected' : '' }}>
-                                    KPI June — Lowest
-                                </option>
-
-                                <option value="kpi_december_desc" {{ request('sort')=='kpi_december_desc' ? 'selected' : '' }}>
-                                    KPI December — Highest
-                                </option>
-                                <option value="kpi_december_asc" {{ request('sort')=='kpi_december_asc' ? 'selected' : '' }}>
-                                    KPI December — Lowest
-                                </option>
-
-                                <option value="development_desc" {{ request('sort')=='development_desc' ? 'selected' : '' }}>
-                                    Avg Development — Highest
-                                </option>
-                                <option value="development_asc" {{ request('sort')=='development_asc' ? 'selected' : '' }}>
-                                    Avg Development — Lowest
-                                </option>
-                            </select>
-
-                            {{-- DROPDOWN ICON --}}
-                            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="h-4 w-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- SEARCH BUTTON --}}
-                    <button
-                        type="submit"
-                        class="
-                            bg-gray-900
-                            text-white
-                            px-5 py-2.5
-                            rounded-lg
-                            text-sm
-                            font-medium
-                            shadow-sm
-                            hover:bg-gray-800
-                            focus:outline-none
-                            focus:ring-2 focus:ring-offset-2 focus:ring-gray-900
-                            transition
-                        "
-                    >
+                    <button type="submit"
+                        class="px-5 py-2 bg-gray-900 text-white rounded hover:bg-gray-800">
                         Search
                     </button>
-                </div>
 
-
-                {{-- ACTION BUTTONS --}}
-                <div class="flex items-end gap-2">
-                    <button
-                        type="button"
+                    {{-- ACTION BUTTONS --}}
+                    <button type="button"
                         onclick="openImportModal()"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-                        Import Assesment | KPI
+                        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                        Import KPI
                     </button>
 
                     <a href="{{ route('admin.evaluations.export', request()->query()) }}"
-                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                         Export CSV
                     </a>
 
                     <a href="{{ route('admin.evaluations.create') }}"
-                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                         + Add KPI
                     </a>
                 </div>
-
             </div>
         </form>
 
+        {{-- ✅ TABLE CARD --}}
+        <div class="bg-white shadow-md rounded-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-gray-700">
+                    <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                        <tr>
+                            <th class="px-4 py-3 text-left">Employee</th>
+                            <th class="px-4 py-3 text-left">Store</th>
+                            <th class="px-4 py-3 text-left">Introduction</th>
+                            <th class="px-4 py-3 text-left">Checklist</th>
+                            <th class="px-4 py-3 text-left">KPI June</th>
+                            <th class="px-4 py-3 text-left">KPI December</th>
+                            <th class="px-4 py-3 text-left">Mentoring</th>
+                            <th class="px-4 py-3 text-left">Development</th>
+                            <th class="px-4 py-3 text-left">Assessment</th>
+                            <th class="px-4 py-3 text-left">Actions</th>
+                        </tr>
+                    </thead>
 
-            {{-- TABLE --}}
-            <table class="w-full bg-white shadow rounded">
-                <thead>
-                    <tr class="bg-gray-100 text-left">
-                        <th class="p-3">Employee ID</th>
-                        <th class="p-3">Employee Name</th>
-                        <th class="p-3">Store</th>
-                        <th class="p-3">Introduction</th>
-                        <th class="p-3">6-Month Checklist</th>
-                        <th class="p-3">KPI June</th>
-                        <th class="p-3">KPI December</th>
-                        <th class="p-3">Total Mentoring</th>
-                        <th class="p-3">Avg Development</th>
-                        <th class="p-3">Assessment</th>
-                        <th class="p-3">Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach($evaluations as $eval)
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach($evaluations as $eval)
                         @php $emp = $eval->employee; @endphp
-                        <tr class="border-b">
-                            <td class="p-3">{{ $emp->employee_id }}</td>
-                            <td class="p-3">{{ $emp->name }}</td>
-                            <td class="p-3">{{ $emp->store->name ?? '-' }}</td>
-                            <td class="p-3">{{ $eval->intro_status }}</td>
-                            <td class="p-3">{{ $eval->checklist_summary }}</td>
-                            <td class="p-3">{{ $eval->kpi_june }}</td>
-                            <td class="p-3">{{ $eval->kpi_december }}</td>
 
-                            <td class="p-3">
+                        <tr
+                            onclick="window.location='{{ route('admin.evaluations.edit', $eval->id) }}'"
+                            class="cursor-pointer hover:bg-blue-50 transition group"
+                        >
+                            <td class="px-4 py-3 font-medium text-gray-900 group-hover:text-blue-700">
+                                {{ $emp->employee_id }} - {{ $emp->name }}
+                            </td>
+
+                            <td class="px-4 py-3">
+                                {{ $emp->store->short_name ?? $emp->store->name ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3">{{ $eval->intro_status }}</td>
+                            <td class="px-4 py-3">{{ $eval->checklist_summary }}</td>
+
+                            <td class="px-4 py-3 font-semibold text-indigo-600">
+                                {{ $eval->kpi_june }}
+                            </td>
+
+                            <td class="px-4 py-3 font-semibold text-indigo-600">
+                                {{ $eval->kpi_december }}
+                            </td>
+
+                            <td class="px-4 py-3">
                                 @if($eval->total_mentoring > 0)
                                     <span class="text-green-600 font-semibold">
                                         {{ $eval->total_mentoring }}x
@@ -191,7 +134,7 @@
                                 @endif
                             </td>
 
-                            <td class="p-3">
+                            <td class="px-4 py-3">
                                 @if($eval->avg_development)
                                     <span class="font-semibold">
                                         {{ $eval->avg_development }}
@@ -201,10 +144,10 @@
                                 @endif
                             </td>
 
-                            <td class="p-3">
+                            <td class="px-4 py-3">
                                 @if($eval->assessment_link)
                                     <a href="{{ $eval->assessment_link }}"
-                                       class="text-blue-600"
+                                       class="text-blue-600 underline"
                                        target="_blank">
                                         View
                                     </a>
@@ -213,72 +156,60 @@
                                 @endif
                             </td>
 
-                            <td class="p-3">
-                                <a class="text-indigo-600"
-                                   href="{{ route('admin.evaluations.edit', $eval->id) }}">
-                                    Edit
-                                </a>
-                                |
+                            <td class="px-4 py-3" onclick="event.stopPropagation();">
                                 <form action="{{ route('admin.evaluations.destroy', $eval->id) }}"
                                       method="POST"
-                                      class="inline">
+                                      onsubmit="return confirm('Delete?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="text-red-600"
-                                            onclick="return confirm('Delete?')">
+                                    <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
                                         Delete
                                     </button>
                                 </form>
                             </td>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
-
-            <div class="mt-4">
-                {{ $evaluations->links() }}
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
 
+            <div class="p-4 border-t">
+                {{ $evaluations->links() }}
+            </div>
         </div>
     </div>
 
-    {{-- IMPORT KPI MODAL --}}
+    {{-- 🔥 IMPORT MODAL --}}
     <div id="importModal"
          class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
             <h3 class="text-lg font-semibold mb-4">Import KPI CSV</h3>
 
-            <form id="importForm"
-                  method="POST"
-                  enctype="multipart/form-data">
+            <form id="importForm" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                <div class="mb-4">
-                    {{-- TEMPLATE DOWNLOAD --}}
+                {{-- TEMPLATE DOWNLOAD --}}
                 <div class="mb-4 space-y-2 text-sm">
                     <p class="text-gray-600 font-medium">Download Template:</p>
 
-                    <div class="flex flex-col gap-2">
-                        <a href="{{ route('admin.evaluations.template', 'kpi') }}"
-                        class="px-3 py-2 border rounded hover:bg-gray-50 text-indigo-600">
-                            ⬇ Template Import KPI
-                        </a>
+                    <a href="{{ route('admin.evaluations.template', 'kpi') }}"
+                       class="block text-indigo-600 hover:underline">
+                        ⬇ Template Import KPI
+                    </a>
 
-                        <a href="{{ route('admin.evaluations.template', 'assessment') }}"
-                        class="px-3 py-2 border rounded hover:bg-gray-50 text-green-600">
-                            ⬇ Template Import Assessment
-                        </a>
-                    </div>
+                    <a href="{{ route('admin.evaluations.template', 'assessment') }}"
+                       class="block text-green-600 hover:underline">
+                        ⬇ Template Import Assessment
+                    </a>
                 </div>
 
-                    <label class="block text-sm font-medium mb-1">
-                        Choose CSV File
-                    </label>
-                    <input type="file"
-                           name="file"
-                           required
-                           class="w-full border px-3 py-2 rounded">
-                </div>
+                <label class="block text-sm font-medium mb-1">
+                    Choose CSV File
+                </label>
+
+                <input type="file" name="file" required
+                       class="w-full border px-3 py-2 rounded mb-4">
 
                 <div class="flex justify-end gap-2">
                     <button type="button"
@@ -309,7 +240,7 @@
         </div>
     </div>
 
-    {{-- SCRIPTS --}}
+    {{-- 🔥 MODAL SCRIPT --}}
     <script>
         function openImportModal() {
             const modal = document.getElementById('importModal');
@@ -334,66 +265,5 @@
             form.action = "{{ route('admin.employee-evaluations.import-assessment') }}";
             form.submit();
         }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const input = document.getElementById('employeeSearch');
-        const resultsBox = document.getElementById('searchResults');
-        const form = document.getElementById('evaluationSearchForm');
-
-        const SEARCH_URL = "{{ route('admin.search.employees') }}";
-
-        async function fetchResults() {
-            const q = input.value.trim();
-
-            if (q.length < 1) {
-                resultsBox.innerHTML = '';
-                resultsBox.classList.add('hidden');
-                return;
-            }
-
-            try {
-                const res = await fetch(
-                    SEARCH_URL + '?q=' + encodeURIComponent(q),
-                    { headers: { 'Accept': 'application/json' } }
-                );
-
-                const data = await res.json();
-
-                if (!Array.isArray(data) || data.length === 0) {
-                    resultsBox.innerHTML =
-                        "<div class='p-3 text-gray-500'>No results</div>";
-                } else {
-                    resultsBox.innerHTML = data.map(item => `
-                        <div
-                            class="p-2 border-b hover:bg-gray-100 cursor-pointer"
-                            onclick="selectEmployee('${item.employee_id}')"
-                        >
-                            <strong>${item.employee_id}</strong> - ${item.name}
-                        </div>
-                    `).join('');
-                }
-
-                resultsBox.classList.remove('hidden');
-
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        input.addEventListener('keyup', fetchResults);
-
-        document.addEventListener('click', function (e) {
-            if (!input.contains(e.target) && !resultsBox.contains(e.target)) {
-                resultsBox.classList.add('hidden');
-            }
-        });
-
-        window.selectEmployee = function (employeeId) {
-            input.value = employeeId;
-            resultsBox.classList.add('hidden');
-            form.submit();
-        };
-    });
     </script>
-
 </x-app-layout>

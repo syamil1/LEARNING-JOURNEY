@@ -106,7 +106,7 @@
         </div>
 
         <div>
-            <p class="text-gray-500">Region</p>
+            <p class="text-gray-500">Division</p>
             <p class="font-semibold">{{ $employee->region->name ?? '-' }}</p>
         </div>
 
