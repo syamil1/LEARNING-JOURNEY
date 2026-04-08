@@ -101,26 +101,6 @@
         </div>
     </div>
 
-    {{-- ================= KPI PREVIOUS YEAR ================= --}}
-    <div class="mt-8">
-        <h3 class="font-semibold mb-3">KPI – Previous Year</h3>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block mb-1">June</label>
-                <input type="number" step="0.01" name="last_year_kpi_june"
-                    class="border p-2 w-full rounded"
-                    value="{{ old('last_year_kpi_june') }}">
-            </div>
-
-            <div>
-                <label class="block mb-1">December</label>
-                <input type="number" step="0.01" name="last_year_kpi_december"
-                    class="border p-2 w-full rounded"
-                    value="{{ old('last_year_kpi_december') }}">
-            </div>
-        </div>
-    </div>
 
     {{-- ================= ASSESSMENT ================= --}}
     <div class="mt-6">

@@ -23,8 +23,9 @@
             <tr><th class="p-2 border">Learning Hours</th><td class="p-2 border">{{ $score->learning_hours }}</td></tr>
             <tr><th class="p-2 border">Nilai NGECAS</th><td class="p-2 border">{{ $score->nilai_ngecas }}</td></tr>
 
-            <tr><th class="p-2 border">Compulsory Training</th><td class="p-2 border">{{ $score->compulsory_training }}</td></tr>
-            <tr><th class="p-2 border">Optional Training</th><td class="p-2 border">{{ $score->optional_training }}</td></tr>
+            <tr><th class="p-2 border">In-House Training</th><td class="p-2 border">{{ $score->inhouse_training }}</td></tr>
+            <tr><th class="p-2 border">Public Training</th><td class="p-2 border">{{ $score->public_training }}</td></tr>
+            <tr><th class="p-2 border">Intensive Training</th><td class="p-2 border">{{ $score->intensive_training }}</td></tr>
             <tr><th class="p-2 border">Development Program</th><td class="p-2 border">{{ $score->development_program }}</td></tr>
         </table>
 

@@ -16,7 +16,7 @@
 
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
-                    </x-nav-link>
+                    </x-nav-link> 
 
                     <x-nav-link :href="route('admin.employees.index')" :active="request()->routeIs('admin.employees.*')">
                         {{ __('Employees') }}
@@ -28,6 +28,10 @@
 
                     <x-nav-link :href="route('admin.development.index')">
                         {{ __('Development') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('admin.idp.index')">
+                        {{ __('IDP') }}
                     </x-nav-link>
 
                     <x-nav-link :href="route('admin.evaluations.index')">
@@ -95,6 +99,9 @@
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('admin.dev.index')">
+                            {{ __('Developer Mode') }}
                         </x-dropdown-link>
 
                         <!-- Logout -->

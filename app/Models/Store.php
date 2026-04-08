@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Store extends Model
 {
-    protected $fillable = ['region_id', 'name', 'user_id'];
-
+    protected $fillable = ['id','region_id', 'name', 'user_id'];
+    public $incrementing = false;
+    protected $keyType = 'int';
     public function region()
     {
         return $this->belongsTo(Region::class);

@@ -45,6 +45,25 @@
                             {{ $record->notes }}
                         </div>
 
+                        @if(!is_null($record->score))
+                            <div class="mt-3">
+                                <div class="flex justify-between text-sm font-semibold text-gray-700 mb-1">
+                                    <span>Score</span>
+                                    <span>{{ $record->score }}</span>
+                                </div>
+
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="h-3 rounded-full
+                                        @if($record->score < 60) bg-red-500
+                                        @elseif($record->score < 80) bg-yellow-400
+                                        @else bg-green-500
+                                        @endif"
+                                        style="width: {{ $record->score }}%">
+                                    </div> 
+                                </div>
+                            </div>
+                        @endif
+
                         <p class="text-sm text-gray-500 mt-3">
                             Created: {{ \Carbon\Carbon::parse($record->created_at)->format('d M Y, H:i') }}
                         </p>

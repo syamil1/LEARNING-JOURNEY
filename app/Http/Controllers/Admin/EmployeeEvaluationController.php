@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\Storage;
-
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\EmployeeEvaluation;
 use App\Models\Employee;
@@ -11,154 +11,241 @@ use Illuminate\Http\Request;
 
 class EmployeeEvaluationController extends Controller
 {
-   public function index(Request $request)
-    {
-        $search = $request->search;
-        $sort   = $request->sort;
+    public function index(Request $request){
+    $search = $request->search;
+    $sort   = $request->sort;
 
-        $query = EmployeeEvaluation::query()
-            ->select('employee_evaluations.*')
-            ->with([
-                'employee.store',
-                'employee.introduction',
-                'employee.onboardingChecklists',
-                'employee.mentorings',
-                'employee.developmentScore',
-            ])
+    $query = EmployeeEvaluation::query()
+        ->select('employee_evaluations.*')
+        ->with([
+            'employee.store',
+            'employee.introduction',
+            'employee.onboardingChecklists',
+            'employee.mentorings',
+            'employee.developmentScore',
+        ])
 
-            ->when($search, function ($q) use ($search) {
-                $q->whereHas('employee', function ($emp) use ($search) {
-                    $emp->where('employee_id', 'like', "%{$search}%")
-                        ->orWhere('name', 'like', "%{$search}%");
-                });
+        ->when($search, function ($q) use ($search) {
+            $q->whereHas('employee', function ($emp) use ($search) {
+                $emp->where('employee_id', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%");
             });
+        });
 
-        /**
-         * SORTING
-         */
-        if ($sort) {
-            switch ($sort) {
+        
+    /**
+     * SORTING
+     */
+    if ($sort) {
+        switch ($sort) {
 
-                // KPI JUNE
-                case 'kpi_june_desc':
-                    $query->orderByDesc('kpi_june');
-                    break;
+            // KPI JUNE
+            case 'kpi_june_desc':
+                $query->orderByDesc('kpi_june');
+                break;
 
-                case 'kpi_june_asc':
-                    $query->orderBy('kpi_june');
-                    break;
+            case 'kpi_june_asc':
+                $query->orderBy('kpi_june');
+                break;
 
-                // KPI DECEMBER
-                case 'kpi_december_desc':
-                    $query->orderByDesc('kpi_december');
-                    break;
+            // KPI DECEMBER
+            case 'kpi_december_desc':
+                $query->orderByDesc('kpi_december');
+                break;
 
-                case 'kpi_december_asc':
-                    $query->orderBy('kpi_december');
-                    break;
+            case 'kpi_december_asc':
+                $query->orderBy('kpi_december');
+                break;
 
-                // AVG DEVELOPMENT (HITUNG LANGSUNG DI SQL)
-                case 'development_desc':
-                    $query
-                        ->leftJoin(
-                            'employee_training_scores',
-                            'employee_training_scores.employee_id',
-                            '=',
-                            'employee_evaluations.employee_id'
-                        )
-                        ->selectRaw('(
-                            (
-                                employee_training_scores.rso_supervisory_skill +
-                                employee_training_scores.rso_retail_salesmanship +
-                                employee_training_scores.rso_customer_service_loyalty +
-                                employee_training_scores.rso_product_merchandising +
-                                employee_training_scores.rso_visual_merchandising +
-                                employee_training_scores.rso_retail_store_promotion +
-                                employee_training_scores.rso_store_financial_perspective +
-                                employee_training_scores.rso_store_general_checkup_strategy
-                            ) / 8
-                        ) as rso_average_calc')
-                        ->orderByDesc('rso_average_calc');
-                    break;
+            // AVG DEVELOPMENT (HITUNG LANGSUNG DI SQL)
+            case 'development_desc':
+                $query
+                    ->leftJoin(
+                        'employee_training_scores',
+                        'employee_training_scores.employee_id',
+                        '=',
+                        'employee_evaluations.employee_id'
+                    )
+                    ->selectRaw('(
+                        (
+                            employee_training_scores.rso_supervisory_skill +
+                            employee_training_scores.rso_retail_salesmanship +
+                            employee_training_scores.rso_customer_service_loyalty +
+                            employee_training_scores.rso_product_merchandising +
+                            employee_training_scores.rso_visual_merchandising +
+                            employee_training_scores.rso_retail_store_promotion +
+                            employee_training_scores.rso_store_financial_perspective +
+                            employee_training_scores.rso_store_general_checkup_strategy
+                        ) / 8
+                    ) as rso_average_calc')
+                    ->orderByDesc('rso_average_calc');
+                break;
 
-                case 'development_asc':
-                    $query
-                        ->leftJoin(
-                            'employee_training_scores',
-                            'employee_training_scores.employee_id',
-                            '=',
-                            'employee_evaluations.employee_id'
-                        )
-                        ->selectRaw('(
-                            (
-                                employee_training_scores.rso_supervisory_skill +
-                                employee_training_scores.rso_retail_salesmanship +
-                                employee_training_scores.rso_customer_service_loyalty +
-                                employee_training_scores.rso_product_merchandising +
-                                employee_training_scores.rso_visual_merchandising +
-                                employee_training_scores.rso_retail_store_promotion +
-                                employee_training_scores.rso_store_financial_perspective +
-                                employee_training_scores.rso_store_general_checkup_strategy
-                            ) / 8
-                        ) as rso_average_calc')
-                        ->orderBy('rso_average_calc');
-                    break;
-            }
+            case 'development_asc':
+                $query
+                    ->leftJoin(
+                        'employee_training_scores',
+                        'employee_training_scores.employee_id',
+                        '=',
+                        'employee_evaluations.employee_id'
+                    )
+                    ->selectRaw('(
+                        (
+                            employee_training_scores.rso_supervisory_skill +
+                            employee_training_scores.rso_retail_salesmanship +
+                            employee_training_scores.rso_customer_service_loyalty +
+                            employee_training_scores.rso_product_merchandising +
+                            employee_training_scores.rso_visual_merchandising +
+                            employee_training_scores.rso_retail_store_promotion +
+                            employee_training_scores.rso_store_financial_perspective +
+                            employee_training_scores.rso_store_general_checkup_strategy
+                        ) / 8
+                    ) as rso_average_calc')
+                    ->orderBy('rso_average_calc');
+                break;
         }
+    }
 
-        $evaluations = $query
-            ->paginate(10)
-            ->withQueryString();
- 
+    $evaluations = $query->get();
+    
         /**
          * HITUNG DATA TAMBAHAN (LOGIC LAMA KAMU)
          */
-        foreach ($evaluations as $ev) {
+    foreach ($evaluations as $ev) {
 
-            $employee = $ev->employee;
-            $intro = $employee->introduction;
+        $employee = $ev->employee;
+        $intro = $employee->introduction;
 
-            $ev->intro_status = ($intro && (
-                $intro->fgd_analytic_score ||
-                $intro->fgd_business_score ||
-                $intro->fgd_leadership_score ||
-                $intro->interview_analytic_score ||
-                $intro->interview_business_score ||
-                $intro->interview_leadership_score
-            )) ? 'Sudah' : 'Belum';
+        // ===============================
+        // INTRO STATUS
+        // ===============================
+        $ev->intro_status = ($intro && (
+            $intro->fgd_analytic_score ||
+            $intro->fgd_business_score ||
+            $intro->fgd_leadership_score ||
+            $intro->interview_analytic_score ||
+            $intro->interview_business_score ||
+            $intro->interview_leadership_score
+        )) ? 'Sudah' : 'Belum';
 
-            $checklists = $employee->onboardingChecklists;
+        $checklists = $employee->onboardingChecklists;
 
-            if ($checklists->contains(fn ($c) => $c->month == 0)) {
-                $ev->checklist_summary = '6/6';
-            } else {
-                $approved = 0;
-                $grouped = $checklists
-                    ->whereBetween('month', [1, 6])
-                    ->groupBy('month');
+        // ===============================
+        // AUTO GENERATED (MONTH 0)
+        // ===============================
+        if ($checklists->contains(fn ($c) => $c->month == 0)) {
 
-                foreach ($grouped as $weeks) {
-                    if (
-                        $weeks->count() === 4 &&
-                        $weeks->every(fn ($w) => $w->status === 'approved')
-                    ) {
-                        $approved++;
-                    }
+            $approved = 6;
+            $ev->checklist_summary = '6/6';
+
+            $ev->expected_month = 6;
+            $ev->progress_delta = 0;
+
+            $ev->checklist_color = 'gray'; // selalu abu
+            $ev->is_generated = true;
+
+        } else {
+
+            // ===============================
+            // HITUNG APPROVED MONTH
+            // ===============================
+            $approved = 0;
+
+            $grouped = $checklists
+                ->whereBetween('month', [1, 6])
+                ->groupBy('month');
+
+            foreach ($grouped as $weeks) {
+                if (
+                    $weeks->count() === 4 &&
+                    $weeks->every(fn ($w) => $w->status === 'approved')
+                ) {
+                    $approved++;
                 }
-
-                $ev->checklist_summary = $approved . '/6';
             }
 
-            $ev->total_mentoring = $employee->mentorings
-                ->where('status', 'verified')
-                ->count();
+            $ev->checklist_summary = $approved . '/6';
 
-            // DISPLAY (ACCESSOR AMAN DI SINI)
-            $ev->avg_development = $employee->developmentScore
-                ? $employee->developmentScore->rso_average
-                : null;
+            // ===============================
+            // HITUNG EXPECTED DARI JOINING DATE
+            // ===============================
+            if ($employee->joining_date) {
+
+                $joining = \Carbon\Carbon::parse($employee->joining_date);
+                $monthsPassed = $joining->diffInMonths(now());
+
+                // bulan berjalan belum wajib selesai
+                $expected = max(0, min($monthsPassed - 1, 6));
+
+                $ev->expected_month = (int) $expected;
+
+            } else {
+                $ev->expected_month = 0;
+            }
+
+            // ===============================
+            // HITUNG PROGRESS DELTA
+            // ===============================
+            $ev->progress_delta = $approved - ($ev->expected_month ?? 0);
+
+            // ===============================
+            // SET WARNA
+            // ===============================
+            if ($ev->progress_delta < 0) {
+                $ev->checklist_color = 'red';      // 🔴 terlambat
+            } elseif ($ev->progress_delta == 0) {
+                $ev->checklist_color = 'green';    // 🟢 normal
+            } else {
+                $ev->checklist_color = 'blue';     // 🔵 lebih cepat
+            }
+
+            $ev->is_generated = false;
         }
 
+        // ===============================
+        // TOTAL MENTORING
+        // ===============================
+        $ev->total_mentoring = $employee->mentorings
+            ->where('status', 'verified')
+            ->count();
+
+        // ===============================
+        // DEVELOPMENT
+        // ===============================
+        $ev->avg_development = $employee->developmentScore
+            ? $employee->developmentScore->rso_average
+            : null;
+    }
+    // ===============================
+    // SORTING ONBOARDING
+    // ===============================
+    if ($sort === 'onboarding_fast') {
+
+        $evaluations = $evaluations
+            ->where('is_generated', false)
+            ->sortByDesc('progress_delta')
+            ->values();
+
+    }
+
+    if ($sort === 'onboarding_slow') {
+
+        $evaluations = $evaluations
+            ->where('is_generated', false)
+            ->sortBy('progress_delta')
+            ->values();
+    }
+
+    $perPage = 10;
+    $page = request()->get('page', 1);
+
+    $evaluations = new \Illuminate\Pagination\LengthAwarePaginator(
+        $evaluations->forPage($page, $perPage),
+        $evaluations->count(),
+        $perPage,
+        $page,
+        ['path' => request()->url(), 'query' => request()->query()]
+    );
         return view('admin.evaluations.index', compact('evaluations', 'search', 'sort'));
     }
 
@@ -174,53 +261,45 @@ class EmployeeEvaluationController extends Controller
 
 
 
-    public function store(Request $request)
-    {
+public function store(Request $request)
+{
     $validated = $request->validate([
-        'employee_id' => 'required|exists:employees,employee_id|unique:employee_evaluations,employee_id',
-
-        'kpi_period' => 'required|in:june,december',
-
-        'business_score' => 'required|numeric|min:0',
-        'behavior_score' => 'required|numeric|min:0',
-        'pa_score' => 'required|numeric|min:0',
-
-        'last_year_kpi_june' => 'nullable|numeric|min:0',
-        'last_year_kpi_december' => 'nullable|numeric|min:0',
-
+        // Hapus 'unique' dari sini agar bisa input periode kedua
+        'employee_id'     => 'required|exists:employees,employee_id',
+        'kpi_period'      => 'required|in:june,december',
+        'business_score'  => 'required|numeric|min:1|max:350', // Sesuai revisi 1-500
+        'behavior_score'  => 'required|numeric|min:1|max:150',
+        'pa_score'        => 'required|numeric|min:1|max:60',
         'assessment_link' => 'nullable|string',
     ]);
 
-        $totalKpi =
-            $validated['business_score'] +
-            $validated['behavior_score'] +
-            $validated['pa_score'];
+    $totalKpi = $validated['business_score'] + $validated['behavior_score'] + $validated['pa_score'];
 
-    $data = [
-        'employee_id' => $validated['employee_id'],
-
-        'business_score' => $validated['business_score'],
-        'behavior_score' => $validated['behavior_score'],
-        'pa_score' => $validated['pa_score'],
-
-        'last_year_kpi_june' => $validated['last_year_kpi_june'] ?? null,
-        'last_year_kpi_december' => $validated['last_year_kpi_december'] ?? null,
-
+    // Siapkan data yang akan diupdate/diinsert
+    $updateData = [
+        'business_score'  => $validated['business_score'],
+        'behavior_score'  => $validated['behavior_score'],
+        'pa_score'        => $validated['pa_score'],
         'assessment_link' => $validated['assessment_link'] ?? null,
     ];
 
+    // Tentukan kolom mana yang diisi berdasarkan periode
     if ($validated['kpi_period'] === 'june') {
-        $data['kpi_june'] = $totalKpi;
+        $updateData['kpi_june'] = $totalKpi;
     } else {
-        $data['kpi_december'] = $totalKpi;
+        $updateData['kpi_december'] = $totalKpi;
     }
 
-    EmployeeEvaluation::create($data);
+    // LOGIKA PENTING: 
+    // Cari berdasarkan employee_id. Jika ketemu, UPDATE. Jika tidak, CREATE.
+    EmployeeEvaluation::updateOrCreate(
+        ['employee_id' => $validated['employee_id']], // Kunci pencarian
+        $updateData                                   // Data yang diisi/diubah
+    );
 
-
-        return redirect()->route('admin.evaluations.index')
-            ->with('success', 'Employee evaluation saved.');
-    }
+    return redirect()->route('admin.evaluations.index')
+        ->with('success', 'Employee evaluation updated successfully.');
+}
 
     public function edit(EmployeeEvaluation $evaluation)
     {
@@ -234,50 +313,46 @@ class EmployeeEvaluationController extends Controller
 
     public function update(Request $request, EmployeeEvaluation $evaluation)
     {
+        // 1. Validasi awal per input (0-500)
         $validated = $request->validate([
-            'business_score' => 'required|numeric|min:0',
-            'behavior_score' => 'required|numeric|min:0',
-            'pa_score'       => 'required|numeric|min:0',
-
-            'last_year_kpi_june'     => 'nullable|numeric|min:0',
-            'last_year_kpi_december' => 'nullable|numeric|min:0',
-
+            'business_score'  => 'required|numeric|min:0|max:350',
+            'behavior_score'  => 'required|numeric|min:0|max:150',
+            'pa_score'        => 'required|numeric|min:0|max:60',
             'assessment_link' => 'nullable|string',
         ]);
 
-        $totalKpi =
-            $validated['business_score'] +
-            $validated['behavior_score'] +
-            $validated['pa_score'];
+        // 2. Hitung total
+        $totalKpi = $validated['business_score'] + 
+                    $validated['behavior_score'] + 
+                    $validated['pa_score'];
 
-        // UPDATE ASPECT
+        // 3. Validasi TOTAL (Sesuai revisi: total tidak boleh out of range 500)
+        if ($totalKpi > 500) {
+            return back()
+                ->withInput()
+                ->with('error', "Gagal! Total skor ($totalKpi) melebihi batas maksimal 500.");
+        }
+
+        // 4. Update Aspect
         $evaluation->business_score = $validated['business_score'];
         $evaluation->behavior_score = $validated['behavior_score'];
         $evaluation->pa_score       = $validated['pa_score'];
+        $evaluation->assessment_link = $validated['assessment_link'];
 
-        // UPDATE KPI TERAKHIR
-        if ($evaluation->kpi_december !== null) {
+        // 5. Update KPI Berdasarkan Periode yang Terisi
+        // Logika: Jika kpi_december ada isinya, berarti kita sedang mengupdate periode Dec.
+        // Jika tidak, kita update periode June.
+        if (!is_null($evaluation->kpi_december)) {
             $evaluation->kpi_december = $totalKpi;
         } else {
             $evaluation->kpi_june = $totalKpi;
         }
 
-        // PREVIOUS YEAR
-        $evaluation->last_year_kpi_june =
-            $validated['last_year_kpi_june'] ?? null;
-
-        $evaluation->last_year_kpi_december =
-            $validated['last_year_kpi_december'] ?? null;
-
-        // ASSESSMENT
-        $evaluation->assessment_link =
-            $validated['assessment_link'] ?? null;
-
         $evaluation->save();
 
         return redirect()
             ->route('admin.evaluations.index')
-            ->with('success', 'Employee evaluation updated.');
+            ->with('success', 'Employee evaluation updated successfully.');
     }
 
     public function destroy(EmployeeEvaluation $evaluation)
@@ -425,6 +500,13 @@ public function export(Request $request)
         fclose($file);
 
     }, 200, $headers);
+}
+
+public function show($id)
+{
+    $employee_evaluation = EmployeeEvaluation::with('employee')->findOrFail($id);
+
+    return view('admin.evaluations.show', compact('employee_evaluation'));
 }
 
 public function downloadTemplate(string $type)
@@ -626,5 +708,21 @@ public function importAssessment(Request $request)
 
 }
 
+    public function reset()
+    {
+        try {
+            // Mengosongkan kolom skor untuk semua record di tabel evaluations
+            EmployeeEvaluation::query()->update([
+                'business_score' => null,
+                'behavior_score' => null,
+                'pa_score'       => null,
+                'kpi_june'       => null,
+                'kpi_december'   => null,
+            ]);
 
-}
+            return redirect()->back()->with('success', 'Semua data KPI berhasil direset menjadi kosong.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mereset data: ' . $e->getMessage());
+        }
+    }
+} 

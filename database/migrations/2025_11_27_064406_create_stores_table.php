@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
 {
     Schema::create('stores', function (Blueprint $table) {
-        $table->id();
+        $table->unsignedBigInteger('id')->primary();
 
         // Foreign key ke tabel regions
         $table->foreignId('region_id')

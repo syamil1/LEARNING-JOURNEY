@@ -244,12 +244,11 @@ class IntroductionController extends Controller
     public function edit($id)
     {
         $introduction = Introduction::findOrFail($id);
-        $levels = Level::all();
         $employees = Employee::all();
 
 
 
-        return view('admin.introductions.edit', compact('introduction', 'employees', 'levels'));
+        return view('admin.introductions.edit', compact('introduction', 'employees'));
     }
 
     public function update(Request $request, $id)

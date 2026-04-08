@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\OnboardingChecklist;
+use App\Models\ChecklistTemplate;
 use App\Models\Employee;
 
 class ChecklistController extends Controller
@@ -15,6 +16,7 @@ class ChecklistController extends Controller
 
         $checklists = OnboardingChecklist::with(['employee', 'employee.store'])
             ->whereHas('employee')
+            ->whereIn('status', ['pending', 'approved', 'rejected'])
             ->when($search, function ($query) use ($search) {
                 $query->whereHas('employee', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -228,4 +230,34 @@ class ChecklistController extends Controller
             'months'
         ));
     }
+    public function editTemplate($month, $week)
+    {
+        $template = ChecklistTemplate::where([
+            'month' => $month,
+            'week'  => $week
+        ])->firstOrFail();
+
+        return view('admin.onboarding.edit-template', compact('template'));
+    }
+
+    public function updateTemplate(Request $request, ChecklistTemplate $template)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'items' => 'required|array|min:1',
+            'items.*' => 'required|string|max:500',
+        ]);
+
+        $template->update([
+            'template_json' => [
+                'title' => $request->title,
+                'items' => array_values($request->items),
+            ]
+        ]);
+
+        return back()->with('success', 'Checklist template berhasil diupdate.');
+    }
+
+    
+
 }

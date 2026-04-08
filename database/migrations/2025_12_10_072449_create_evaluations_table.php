@@ -21,14 +21,11 @@ return new class extends Migration
             // Link hasil assessment
             $table->string('assessment_link')->nullable();
 
-            // KPI tahun lalu
-            $table->decimal('last_year_kpi_june', 5, 2)->nullable();
-            $table->decimal('last_year_kpi_december', 5, 2)->nullable();
 
             $table->timestamps();
 
             // Foreign Key
-            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
+            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
         });
     }
 

@@ -22,8 +22,9 @@ class EmployeeTrainingScore extends Model
         'rso_store_general_checkup_strategy',
         'learning_hours',
         'nilai_ngecas',
-        'compulsory_training',
-        'optional_training',
+        'inhouse_training',
+        'public_training',
+        'intensive_training',
         'development_program',
     ];
 

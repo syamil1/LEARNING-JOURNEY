@@ -19,13 +19,12 @@
                 {{-- SEARCH --}}
                 <div class="relative w-72">
                     <label class="font-semibold">Search Employee</label>
-                    <input
-                        type="text"
-                        name="search"
-                        value="{{ request('search') }}"
+                    <input                     type="text" 
+                        id="employeeSearchIndex"
+                        class="w-full border rounded px-4 py-2"
                         placeholder="Employee ID / Name..."
-                        class="w-full border rounded px-3 py-2 mt-1"
                     >
+                    <div id="searchResultsIndex" class="mt-1 bg-white shadow rounded hidden absolute w-full z-50"></div>
                 </div>
 
                 {{-- ACTION BUTTONS --}}
@@ -177,6 +176,54 @@
 
     {{-- 🔥 MODAL SCRIPT --}}
     <script>
+
+         document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('employeeSearchIndex');
+            const resultsBox = document.getElementById('searchResultsIndex');
+
+            const SEARCH_URL = "{{ route('admin.search.employees') }}";
+
+            async function fetchResults() {
+                let q = input.value.trim();
+                if (q.length < 1) {
+                    resultsBox.innerHTML = "";
+                    resultsBox.classList.add("hidden");
+                    return;
+                }
+
+                try {
+                    const res = await fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    const data = await res.json();
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        resultsBox.innerHTML = "<p class='p-3 text-gray-500'>No results</p>";
+                    } else {
+                        resultsBox.innerHTML = data.map(item => `
+                            <div class="p-2 border-b hover:bg-gray-100 cursor-pointer"
+                                onclick="selectEmployeeIndex('${item.employee_id}', '${item.employee_id}', '${item.name}')">
+                                <strong>${item.employee_id}</strong> - ${item.name}
+                            </div>
+                        `).join('');
+                    }
+
+                    resultsBox.classList.remove("hidden");
+
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            input.addEventListener('keyup', fetchResults);
+        });
+
+        window.selectEmployeeIndex = function(employeeId) {
+            window.location.href =
+                "{{ route('admin.introductions.index') }}" + "?search=" + employeeId;
+        };
+
         function openImportModal() {
             const modal = document.getElementById('importModal');
             modal.classList.remove('hidden');

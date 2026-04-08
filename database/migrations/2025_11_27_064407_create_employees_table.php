@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             // Employee basic info
-            $table->string('employee_id')->unique();
+            $table->unsignedBigInteger('employee_id')->unique();
             $table->string('name');
             $table->enum('contract_type', ['Permanent', 'Contract']);
 

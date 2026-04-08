@@ -29,17 +29,16 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        if ($user->role === 'admin') {
+        if (in_array($user->role, ['admin', 'editor', 'viewer'])) {
             return redirect()->route('admin.dashboard');
         }
 
         if ($user->role === 'sales_superintendent') {
-        return redirect()->route('sales.report.show');
+            return redirect()->route('sales.report.show');
         }
 
         return redirect()->route('user.dashboard');
     }
-
 
     public function destroy(Request $request): RedirectResponse
     {

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Store;
 use App\Models\Region;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class StoreController extends Controller
@@ -73,14 +74,29 @@ class StoreController extends Controller
     public function update(Request $request, Store $store)
     {
         $request->validate([
-            'region_id' => 'required',
+            'region_id' => 'required|exists:regions,id',
             'name' => 'required|string|max:255',
         ]);
 
-        $store->update($request->all());
+        DB::transaction(function () use ($request, $store) {
+
+            // update store
+            $store->update([
+                'region_id' => $request->region_id,
+                'name' => $request->name,
+            ]);
+
+            // 🔥 update semua employee yg ada di store ini
+            DB::table('employees')
+                ->where('store_id', $store->id)
+                ->update([
+                    'region_id' => $request->region_id,
+                    'updated_at' => now(),
+                ]);
+        });
 
         return redirect()->route('admin.stores.index')
-            ->with('success', 'Store updated successfully.');
+            ->with('success', 'Store & related employees updated successfully.');
     }
 
     public function destroy(Store $store)

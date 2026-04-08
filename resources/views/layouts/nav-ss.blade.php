@@ -15,6 +15,12 @@
                     <x-nav-link :href="route('sales.report.show')" :active="request()->routeIs('sales.report.*')">
                         Dashboard
                     </x-nav-link>
+                    <x-nav-link :href="route('sales.onboarding.index')" :active="request()->routeIs('sales.onboarding.*')">
+                        Onboarding Checklist
+                    </x-nav-link>
+                    <x-nav-link :href="route('sales.idp.index')" :active="request()->routeIs('sales.idp.*')">
+                        Individual Development Plan
+                    </x-nav-link>
                     <x-nav-link href="https://classroom.google.com/c/NzU4OTM0MTA0NzE2?cjc=t5snjb7p" target="_blank">
                         New Journey at Gramedia
                     </x-nav-link>

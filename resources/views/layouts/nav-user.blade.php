@@ -15,13 +15,14 @@
                     <x-nav-link :href="route('user.dashboard')" :active="request()->routeIs('user.dashboard.*')">
                         Dashboard
                     </x-nav-link>
-
-                    <x-nav-link :href="route('user.onboarding.checklist.index')" :active="request()->routeIs('user.onboarding.checklist.*')">
+                    <x-nav-link :href="route('user.onboarding.index')" :active="request()->routeIs('user.onboarding.*')">
                         Onboarding Checklist
                     </x-nav-link>
-
                     <x-nav-link :href="route('user.mentoring.index')" :active="request()->routeIs('user.mentoring.*')">
                         Mentoring
+                    </x-nav-link>
+                    <x-nav-link :href="route('user.idp.index')" :active="request()->routeIs('user.idp.*')">
+                        IDP Review
                     </x-nav-link>
                     <x-nav-link href="https://classroom.google.com/c/NzU4OTM0MTA0NzE2?cjc=t5snjb7p" target="_blank">
                         New Journey at Gramedia
@@ -91,12 +92,15 @@
                 Dashboard
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('user.onboarding.checklist.index')">
+            <x-responsive-nav-link :href="route('user.onboarding.index')">
                 Onboarding Checklist
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('user.mentoring.index')">
                 Mentoring
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('user.idp.index')">
+                IDP Review
             </x-responsive-nav-link>
         </div>
 

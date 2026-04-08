@@ -12,71 +12,85 @@
             </div>
         @endif
 
-        {{-- 🔎 SEARCH + ACTION --}}
-        <form method="GET" class="mb-4" id="evaluationSearchForm">
-            <div class="flex items-end justify-between gap-4">
+    {{-- 1. HIDDEN RESET FORM (Letakkan di luar form search agar tidak konflik) --}}
+    <form id="realResetKpiForm" action="{{ route('admin.evaluations.reset') }}" method="POST" class="hidden">
+        @csrf
+        @method('PUT')
+    </form>
 
+    {{-- 2. 🔎 SEARCH + ACTION AREA --}}
+    <form method="GET" class="mb-6" id="evaluationSearchForm">
+        <div class="flex items-end justify-between gap-6">
+
+            {{-- LEFT SIDE --}}
+            <div class="flex items-end gap-3">
                 {{-- SEARCH --}}
                 <div class="relative w-80">
-                    <label class="font-semibold">Search Employee</label>
-                    <input
-                        type="text"
-                        name="search"
-                        id="employeeSearch"
-                        value="{{ $search }}"
+                    <input type="text" 
+                        id="employeeSearchIndex"
+                        class="w-full border rounded px-4 py-2"
                         placeholder="Employee ID / Name..."
-                        class="w-full border rounded px-4 py-2 mt-1"
-                        autocomplete="off"
                     >
-                    <div id="searchResults"
-                         class="hidden absolute w-full bg-white border rounded shadow mt-1 z-50"></div>
+                    <div id="searchResultsIndex" class="mt-1 bg-white shadow rounded hidden absolute w-full z-50"></div>
                 </div>
 
-                {{-- RIGHT SIDE --}}
-                <div class="flex items-end gap-3">
-
-                    {{-- SORT --}}
+                {{-- SORT --}}
+                <div class="flex flex-col">
+                    <label class="text-xs font-semibold text-gray-500 mb-1">
+                        Sort By
+                    </label>
                     <select name="sort"
-                        class="border rounded px-4 py-2 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500">
+                        class="border border-gray-300 rounded-lg px-4 py-2 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="">Default</option>
-                        <option value="kpi_june_desc" {{ request('sort')=='kpi_june_desc' ? 'selected' : '' }}>
-                            KPI June — Highest
-                        </option>
-                        <option value="kpi_june_asc" {{ request('sort')=='kpi_june_asc' ? 'selected' : '' }}>
-                            KPI June — Lowest
-                        </option>
-                        <option value="kpi_december_desc" {{ request('sort')=='kpi_december_desc' ? 'selected' : '' }}>
-                            KPI December — Highest
-                        </option>
-                        <option value="kpi_december_asc" {{ request('sort')=='kpi_december_asc' ? 'selected' : '' }}>
-                            KPI December — Lowest
-                        </option>
+                        <optgroup label="KPI">
+                            <option value="kpi_june_desc" {{ request('sort')=='kpi_june_desc' ? 'selected' : '' }}>KPI June — Highest</option>
+                            <option value="kpi_june_asc" {{ request('sort')=='kpi_june_asc' ? 'selected' : '' }}>KPI June — Lowest</option>
+                            <option value="kpi_december_desc" {{ request('sort')=='kpi_december_desc' ? 'selected' : '' }}>KPI December — Highest</option>
+                            <option value="kpi_december_asc" {{ request('sort')=='kpi_december_asc' ? 'selected' : '' }}>KPI December — Lowest</option>
+                        </optgroup>
+                        <optgroup label="Onboarding Progress">
+                            <option value="onboarding_fast" {{ request('sort')=='onboarding_fast' ? 'selected' : '' }}>🚀 Tercepat</option>
+                            <option value="onboarding_slow" {{ request('sort')=='onboarding_slow' ? 'selected' : '' }}>🐢 Terlambat</option>
+                        </optgroup>
                     </select>
-
-                    <button type="submit"
-                        class="px-5 py-2 bg-gray-900 text-white rounded hover:bg-gray-800">
-                        Search
-                    </button>
-
-                    {{-- ACTION BUTTONS --}}
-                    <button type="button"
-                        onclick="openImportModal()"
-                        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                        Import KPI
-                    </button>
-
-                    <a href="{{ route('admin.evaluations.export', request()->query()) }}"
-                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                        Export CSV
-                    </a>
-
-                    <a href="{{ route('admin.evaluations.create') }}"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        + Add KPI
-                    </a>
                 </div>
+
+                {{-- SEARCH BUTTON --}}
+                <button type="submit"
+                    class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition">
+                    Search
+                </button>
             </div>
-        </form>
+
+            {{-- RIGHT SIDE --}}
+            <div class="flex items-end gap-3">
+                {{-- Tombol Reset (Memanggil form di luar menggunakan JS) --}}
+                @if(in_array(auth()->user()->role, ['admin','editor']))
+                <button type="button"
+                    onclick="if(confirm('Apakah Anda yakin ingin menghapus SEMUA data skor KPI (Business, Behavior, PA, June, Dec)? Tindakan ini tidak dapat dibatalkan.')) document.getElementById('realResetKpiForm').submit();"
+                    class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-600 hover:text-white transition font-medium">
+                    Reset All KPI
+                </button>
+
+                <button type="button"
+                    onclick="openImportModal()"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                    Import KPI
+                </button>
+
+                <a href="{{ route('admin.evaluations.create') }}"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    + Add KPI
+                </a>
+                @endif
+                <a href="{{ route('admin.evaluations.export', request()->query()) }}"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    Export CSV
+                </a>
+            </div>
+
+        </div>
+    </form>
 
         {{-- ✅ TABLE CARD --}}
         <div class="bg-white shadow-md rounded-xl overflow-hidden">
@@ -101,8 +115,17 @@
                         @foreach($evaluations as $eval)
                         @php $emp = $eval->employee; @endphp
 
+                        @php
+                            $role = auth()->user()->role;
+
+                            $route = match($role) {
+                                'viewer' => route('admin.evaluations.show', $eval->id),
+                                default => route('admin.evaluations.edit', $eval->id),
+                            };
+                        @endphp
+
                         <tr
-                            onclick="window.location='{{ route('admin.evaluations.edit', $eval->id) }}'"
+                            onclick="window.location='{{ $route }}'"
                             class="cursor-pointer hover:bg-blue-50 transition group"
                         >
                             <td class="px-4 py-3 font-medium text-gray-900 group-hover:text-blue-700">
@@ -114,8 +137,28 @@
                             </td>
 
                             <td class="px-4 py-3">{{ $eval->intro_status }}</td>
-                            <td class="px-4 py-3">{{ $eval->checklist_summary }}</td>
+                            <td class="px-4 py-3">
+                                @php
+                                    // FORCE GRAY kalau ada month 0 (auto full)
+                                    if ($eval->employee->onboardingChecklists
+                                        ->contains(fn($c) => $c->month == 0)) {
+                                        $eval->checklist_color = 'gray';
+                                    }
 
+                                    $colorClass = match($eval->checklist_color ?? 'gray') {
+                                        'red' => 'bg-red-100 text-red-700 ring-1 ring-red-300',
+                                        'green' => 'bg-green-100 text-green-700 ring-1 ring-green-300',
+                                        'blue' => 'bg-blue-100 text-blue-700 ring-1 ring-blue-300',
+                                        default => 'bg-gray-100 text-gray-600 ring-1 ring-gray-300'
+                                    };
+                                @endphp
+
+                                <div class="flex items-center gap-2">
+                                    <span class="px-3 py-1 rounded-full text-sm font-semibold {{ $colorClass }}">
+                                        {{ $eval->checklist_summary }}
+                                    </span>
+                                </div>
+                            </td>
                             <td class="px-4 py-3 font-semibold text-indigo-600">
                                 {{ $eval->kpi_june }}
                             </td>
@@ -157,15 +200,19 @@
                             </td>
 
                             <td class="px-4 py-3" onclick="event.stopPropagation();">
+
+                            @if(in_array(auth()->user()->role, ['admin','editor']))
                                 <form action="{{ route('admin.evaluations.destroy', $eval->id) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('Delete?')">
+                                    method="POST"
+                                    onsubmit="return confirm('Delete?')">
                                     @csrf
                                     @method('DELETE')
                                     <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
                                         Delete
                                     </button>
                                 </form>
+                            @endif
+
                             </td>
                         </tr>
                         @endforeach
@@ -242,6 +289,53 @@
 
     {{-- 🔥 MODAL SCRIPT --}}
     <script>
+         document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('employeeSearchIndex');
+            const resultsBox = document.getElementById('searchResultsIndex');
+
+            const SEARCH_URL = "{{ route('admin.search.employees') }}";
+
+            async function fetchResults() {
+                let q = input.value.trim();
+                if (q.length < 1) {
+                    resultsBox.innerHTML = "";
+                    resultsBox.classList.add("hidden");
+                    return;
+                }
+
+                try {
+                    const res = await fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    const data = await res.json();
+
+                    if (!Array.isArray(data) || data.length === 0) {
+                        resultsBox.innerHTML = "<p class='p-3 text-gray-500'>No results</p>";
+                    } else {
+                        resultsBox.innerHTML = data.map(item => `
+                            <div class="p-2 border-b hover:bg-gray-100 cursor-pointer"
+                                onclick="selectEmployeeIndex('${item.employee_id}', '${item.employee_id}', '${item.name}')">
+                                <strong>${item.employee_id}</strong> - ${item.name}
+                            </div>
+                        `).join('');
+                    }
+
+                    resultsBox.classList.remove("hidden");
+
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            input.addEventListener('keyup', fetchResults);
+        });
+
+        window.selectEmployeeIndex = function(employeeId) {
+            window.location.href =
+                "{{ route('admin.evaluations.index') }}" + "?search=" + employeeId;
+        };
+
         function openImportModal() {
             const modal = document.getElementById('importModal');
             modal.classList.remove('hidden');

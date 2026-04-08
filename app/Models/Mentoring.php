@@ -13,11 +13,13 @@ class Mentoring extends Model
         'notes',
         'notes_hr',
         'status',
+        'score',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'score',
     ];
 
     const UPDATED_AT = null;

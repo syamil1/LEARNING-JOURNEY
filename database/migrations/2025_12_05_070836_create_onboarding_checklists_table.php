@@ -17,13 +17,15 @@ return new class extends Migration
             $table->unsignedBigInteger('employee_id');
             $table->unsignedInteger('month');
             $table->unsignedInteger('week');
+            $table->unsignedTinyInteger('score')->nullable();
 
             $table->json('checklist_json');
 
             $table->text('notes_store_manager')->nullable();
 
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['draft','pending_sm','pending', 'approved', 'rejected'])->default('draft');
             $table->text('notes_hr')->nullable();
+            $table->text('notes_ss')->nullable();
 
             $table->timestamps();
         });

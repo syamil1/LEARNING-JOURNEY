@@ -13,10 +13,10 @@ class AdminHrSeeder extends Seeder
     {
         DB::table('users')->insert([
             'name' => 'Admin HR',
-            'email' => 'adminhr@company.com',
+            'email' => 'adminhr',
             'role' => 'admin',
             'email_verified_at' => now(),
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('admin123'),
             'remember_token' => null,
             'created_at' => now(),
             'updated_at' => now(),

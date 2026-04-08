@@ -3,151 +3,130 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\ChecklistTemplate;
-use App\Models\OnboardingChecklist;
 use App\Models\Employee;
+use App\Models\OnboardingChecklist;
 use Illuminate\Http\Request;
 
 class ChecklistController extends Controller
 {
-    public function index()
-    {
-        $store = auth()->user()->store;
+    // ===============================
+    // LIST EMPLOYEE & STATUS BULAN
+    // ===============================
+public function index()
+{
+    $store = auth()->user()->store;
 
-        $templates = ChecklistTemplate::all()->groupBy('month');
+    $employees = Employee::where('store_id', $store->id)
+        ->with('onboardingChecklists')
+        ->get()
+        ->map(function ($employee) {
 
-        $employees = Employee::where('store_id', $store->id)
-            ->with('onboardingChecklists')
-            ->get()
-            ->map(function ($employee) use ($templates) {
+            // 🔥 AUTO APPROVED CHECK
+            $hasAutoApproved = $employee->onboardingChecklists
+                ->contains(fn($c) => $c->month == 0 && $c->week == 0);
 
-                $hasFull = $employee->onboardingChecklists
-                    ->contains(fn($c) => $c->month == 0);
+            if ($hasAutoApproved) {
+                $employee->months = collect(range(1, 6))->map(fn($m) => [
+                    'month' => $m,
+                    'status' => 'approved',
+                    'locked' => true,
+                    'auto' => true,
+                ]);
 
-                if ($hasFull) {
-                    $employee->months = $templates->map(function ($weeks, $month) {
-                        return [
-                            'month'  => $month,
-                            'status' => 'approved',
-                            'weeks'  => $weeks->map(fn ($w) => [
-                                'week'   => $w->week,
-                                'filled' => true,
-                            ]),
-                        ];
-                    })->values();
-
-                    $employee->is_full = true;
-                    return $employee;
-                }
-
-                $months = [];
-
-                foreach ($templates as $month => $weeks) {
-
-                    $filled = $employee->onboardingChecklists->where('month', $month);
-
-                    if ($filled->contains(fn($i) => $i->status === 'rejected')) {
-                        $status = 'rejected';
-                    } else {
-                        $totalWeeks = $weeks->count();
-                        $completedWeeks = $filled->where('status', 'approved')->count();
-
-                        $status = match (true) {
-                            $filled->isEmpty() => 'not_started',
-                            $completedWeeks < $totalWeeks => 'in_progress',
-                            default => 'approved',
-                        };
-                    }
-
-                    $months[] = [
-                        'month'  => $month,
-                        'status' => $status,
-                        'weeks'  => $weeks->map(fn ($w) => [
-                            'week'   => $w->week,
-                            'filled' => $filled->where('week', $w->week)->isNotEmpty(),
-                        ]),
-                    ];
-                }
-
-                $employee->months = $months;
                 return $employee;
+            }
+
+            $previousMonthApproved = true;
+
+            $months = collect(range(1, 6))->map(function ($month) use ($employee, &$previousMonthApproved) {
+
+                $records = $employee->onboardingChecklists->where('month', $month);
+
+                // 🔹 STATUS
+                if ($records->isEmpty()) {
+                    $status = 'not_yet';
+                } elseif ($records->contains('status', 'pending_sm')) {
+                    $status = 'pending_sm';
+                } elseif ($records->contains('status', 'pending')) {
+                    $status = 'pending';
+                } elseif ($records->contains('status', 'rejected')) {
+                    $status = 'rejected';
+                } elseif ($records->every(fn($r) => $r->status === 'approved')) {
+                    $status = 'approved';
+                } else {
+                    $status = 'draft';
+                }
+
+                // 🔥 LOCK LOGIC (urutan bulan)
+                $locked = !$previousMonthApproved;
+
+                // update status untuk bulan berikutnya
+                $previousMonthApproved = ($status === 'approved');
+
+                return [
+                    'month' => $month,
+                    'status' => $status,
+                    'locked' => $locked,
+                    'auto' => false,
+                ];
             });
 
-        return view('user.onboardingchecklist.index', compact('employees'));
-    }
+            $employee->months = $months;
+            return $employee;
+        });
 
-    public function show($employeeId, $month, $week)
+    return view('user.onboarding.index', compact('employees'));
+}       
+
+    // ===============================
+    // REVIEW BULAN (lihat detail week)
+    // ===============================
+    public function review($employeeId, $month)
     {
-        $hasFull = OnboardingChecklist::where('employee_id', $employeeId)
-            ->where('month', 0)
-            ->exists();
+        $employee = Employee::findOrFail($employeeId);
 
-        if ($hasFull) {
-            return redirect()
-                ->route('user.onboarding.checklist.index')
-                ->with('info', 'Onboarding employee ini sudah auto approved.');
-        }
-
-        $checklist = OnboardingChecklist::where([
+        $checklists = OnboardingChecklist::where([
             'employee_id' => $employeeId,
-            'month'       => $month,
-            'week'        => $week,
-        ])->first();
+            'month' => $month
+        ])->orderBy('week')->get();
 
-        if (!$checklist) {
-            $template = ChecklistTemplate::where('month', $month)
-                ->where('week', $week)
-                ->firstOrFail();
-
-            $checklist = OnboardingChecklist::create([
-                'employee_id'    => $employeeId,
-                'month'          => $month,
-                'week'           => $week,
-                'checklist_json' => $template->template_json,
-                'status'         => 'pending',
-            ]);
-        }
-
-        $data = $checklist->checklist_json;
-
-        return view('user.onboardingchecklist.show', compact(
-            'checklist',
-            'data',
+        return view('user.onboarding.review', compact(
+            'employee',
             'month',
-            'week'
+            'checklists'
         ));
     }
 
-    public function store(Request $request, $employeeId, $month, $week)
+    // ===============================
+    // CONFIRM BULAN → KIRIM KE HR
+    // ===============================
+    public function confirm(Request $request, $employeeId, $month)
     {
-        $hasFull = OnboardingChecklist::where('employee_id', $employeeId)
-            ->where('month', 0)
-            ->exists();
-
-        if ($hasFull) {
-            return redirect()
-                ->route('user.onboarding.checklist.index')
-                ->with('info', 'Onboarding employee ini sudah auto approved.');
-        }
-
-        OnboardingChecklist::where([
-            'employee_id' => $employeeId,
-            'month'       => $month,
-            'week'        => $week,
-        ])->update([
-            'checklist_json'      => $request->input('checklist'),
-            'filled_by'           => $request->filled_by,
-            'notes_store_manager' => $request->notes_store_manager,
+        $request->validate([
+            'filled_by' => 'required|string|max:255', // ✅ wajib diisi SM
+            'notes_store_manager' => 'nullable|string|max:1000',
+            'score' => 'required|integer|min:1|max:100',
         ]);
 
-        OnboardingChecklist::where('employee_id', $employeeId)
-            ->where('month', $month)
-            ->update([
-                'status' => 'pending',
-            ]);
+        $updated = OnboardingChecklist::where([
+            'employee_id' => $employeeId,
+            'month' => $month,
+            'status' => 'pending_sm'
+        ])->update([
+            'status' => 'pending', // → kirim ke HR
+            'notes_store_manager' => $request->notes_store_manager,
+            'score' => $request->score,
+            'filled_by' => $request->filled_by, // ✅ ambil dari input SM
+        ]);
+
+        if (!$updated) {
+            return redirect()->back()->with('error', 'Tidak ada data yang bisa dikonfirmasi.');
+        }
 
         return redirect()
-            ->route('user.onboarding.checklist.index')
-            ->with('success', 'Checklist saved & month status reset to pending');
+            ->route('user.onboarding.index')
+            ->with('success', "Month {$month} confirmed & sent to HR.");
     }
+
+
 }

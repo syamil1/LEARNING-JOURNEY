@@ -13,7 +13,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('employee_id');
             $table->foreign('employee_id')
-                ->references('id')
+                ->references('employee_id')
                 ->on('employees')
                 ->onDelete('cascade');
 

@@ -19,17 +19,30 @@
                 default => 'bg-gray-100 text-gray-500'
             };
         }
+        function levelName($level) {
+            return match((int)$level) {
+                1 => 'Lone Ranger',
+                2 => 'Team Player',
+                3 => 'Team Leader',
+                4 => 'Synergy Maker',
+                5 => 'Collaborator',
+                6 => 'Ecosystem Builder',
+                default => '-'
+            };
+        }
+
         @endphp
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-semibold">
                 Learning Journey Report
             </h2>
-
+            @if(auth()->user()->role === 'admin')
             <a href="{{ route('admin.employees.report.pdf', $employee) }}"
                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
                 Download PDF
             </a>
+            @endif
         </div>
     </x-slot>
 
@@ -251,7 +264,121 @@
             @endif
             <canvas id="onboardingChart" height="120"></canvas>
         </div>
+                
+        {{-- ================= IDP ================= --}}
+        <div class="bg-white shadow rounded-xl p-6">
+            <h3 class="text-lg font-semibold mb-5">Individual Development Plan</h3>
 
+            @if($idps->count())
+
+                @foreach($idps as $idp)
+
+                    @php
+                        $statusColor = match($idp->status){
+                            'draft' => 'bg-gray-100 text-gray-600',
+                            'pending' => 'bg-yellow-100 text-yellow-700',
+                            'waiting_hr' => 'bg-blue-100 text-blue-700',
+                            'completed' => 'bg-green-100 text-green-700',
+                            default => 'bg-gray-100 text-gray-600'
+                        };
+                    @endphp
+
+                    <div class="border border-gray-200 rounded-xl p-4 mb-4 hover:shadow-sm transition">
+
+                        {{-- HEADER --}}
+                        <div class="flex justify-between items-start mb-3">
+                            
+                            <div>
+                                <p class="font-semibold text-gray-800">
+                                    {{ $idp->competency?->name ?? '-' }}
+                                </p>
+
+                                {{-- LEVEL --}}
+                                <div class="flex items-center gap-2 mt-1 text-xs">
+
+                                    <span class="px-2 py-1 rounded bg-gray-10 text-gray-700">
+                                        {{ levelName($idp->current_level) }}
+                                    </span>
+
+                                    <span class="text-gray-400">→</span>
+
+                                    <span class="px-2 py-1 rounded bg-gray-100 text-gray-700">
+                                        {{ levelName($idp->target_level) }}
+                                    </span>
+
+                                </div>
+
+                                {{-- TARGET --}}
+                                <p class="text-xs text-gray-500 mt-2">
+                                    {{ $idp->target_idp }}
+                                </p>
+                            </div>
+
+                            <span class="text-xs px-3 py-1 rounded-full {{ $statusColor }}">
+                                {{ ucfirst(str_replace('_',' ',$idp->status)) }}
+                            </span>
+
+                        </div>
+
+                        {{-- TASK LIST --}}
+                        <div class="space-y-2">
+
+                            @foreach($idp->tasks as $task)
+
+                                @php
+                                    $taskStatusColor = match($task->status){
+                                        'pending' => 'bg-gray-100 text-gray-600',
+                                        'ongoing' => 'bg-yellow-100 text-yellow-700',
+                                        'completed' => 'bg-green-100 text-green-700',
+                                        default => 'bg-gray-100 text-gray-600'
+                                    };
+
+                                    $categoryColor = match($task->category){
+                                        'knowledge' => 'bg-blue-100 text-blue-700',
+                                        'experiential_learning' => 'bg-purple-100 text-purple-700',
+                                        'mentoring' => 'bg-green-100 text-green-700',
+                                        default => 'bg-gray-100 text-gray-600'
+                                    };
+                                @endphp
+
+                                <div class="flex justify-between items-center border rounded-lg px-3 py-2 bg-gray-50">
+
+                                    <div class="flex-1">
+
+                                        <div class="flex justify-between items-center mb-1">
+
+                                            {{-- LEFT (CATEGORY) --}}
+                                            <span class="text-[11px] px-2 py-1 rounded {{ $categoryColor }}">
+                                                {{ ucfirst(str_replace('_',' ',$task->category)) }}
+                                            </span>
+
+                                            {{-- RIGHT (STATUS) --}}
+                                            <span class="text-[11px] px-2 py-1 rounded {{ $taskStatusColor }}">
+                                                {{ ucfirst($task->status) }}
+                                            </span>
+
+                                        </div>
+
+                                        <p class="text-sm text-gray-800">
+                                            {{ $task->task }}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            @endforeach
+
+                        </div>
+
+                    </div>
+
+                @endforeach
+
+            @else
+                <p class="text-gray-400 text-sm">No IDP data</p>
+            @endif
+        </div>
     </div>
 
     {{-- ================= RIGHT COLUMN ================= --}}
@@ -260,52 +387,73 @@
         {{-- ================= DEVELOPMENT ================= --}}
         @if($development)
         <div class="grid grid-cols-1 gap-6 bg-white shadow rounded p-6">
+            {{-- Chart Section --}}
             <div class="bg-gray-50 border rounded-lg p-4 flex justify-center">
-                <canvas id="developmentChart" class="max-h-[260px]"></canvas>
+                <canvas id="developmentChart" class="h-[300px]"></canvas>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm border">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="p-2 border">Competency</th>
-                            <th class="p-2 border text-center">Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td class="p-2 border">Supervisory Skill</td><td class="p-2 border text-center">{{ $development->rso_supervisory_skill }}</td></tr>
-                        <tr><td class="p-2 border">Retail Salesmanship</td><td class="p-2 border text-center">{{ $development->rso_retail_salesmanship }}</td></tr>
-                        <tr><td class="p-2 border">Customer Service Loyalty</td><td class="p-2 border text-center">{{ $development->rso_customer_service_loyalty }}</td></tr>
-                        <tr><td class="p-2 border">Product Merchandising</td><td class="p-2 border text-center">{{ $development->rso_product_merchandising }}</td></tr>
-                        <tr><td class="p-2 border">Visual Merchandising</td><td class="p-2 border text-center">{{ $development->rso_visual_merchandising }}</td></tr>
-                        <tr><td class="p-2 border">Retail Store Promotion</td><td class="p-2 border text-center">{{ $development->rso_retail_store_promotion }}</td></tr>
-                        <tr><td class="p-2 border">Financial Perspective</td><td class="p-2 border text-center">{{ $development->rso_store_financial_perspective }}</td></tr>
-                        <tr><td class="p-2 border">General Strategy</td><td class="p-2 border text-center">{{ $development->rso_store_general_checkup_strategy }}</td></tr>
-                    </tbody>
-                </table>
+            <div class="space-y-6">
+                {{-- 📊 RSO ASSESSMENT GROUP --}}
+                <div class="overflow-x-auto">
+                    <h3 class="text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider flex items-center">
+                        <span class="w-2 h-4 bg-orange-500 mr-2 rounded-sm"></span>
+                        RSO Assessment
+                    </h3>
+                    <table class="w-full text-sm border">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-2 border text-left">Competency</th>
+                                <th class="p-2 border text-center w-24">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="p-2 border italic text-gray-600">Supervisory Skill</td><td class="p-2 border text-center font-semibold">{{ $development->rso_supervisory_skill }}</td></tr>
+                            <tr><td class="p-2 border italic text-gray-600">Retail Salesmanship</td><td class="p-2 border text-center font-semibold">{{ $development->rso_retail_salesmanship }}</td></tr>
+                            <tr><td class="p-2 border italic text-gray-600">Customer Service Loyalty</td><td class="p-2 border text-center font-semibold">{{ $development->rso_customer_service_loyalty }}</td></tr>
+                            <tr><td class="p-2 border italic text-gray-600">Product Merchandising</td><td class="p-2 border text-center font-semibold">{{ $development->rso_product_merchandising }}</td></tr>
+                            <tr><td class="p-2 border italic text-gray-600">Visual Merchandising</td><td class="p-2 border text-center font-semibold">{{ $development->rso_visual_merchandising }}</td></tr>
+                            <tr><td class="p-2 border italic text-gray-600">Retail Store Promotion</td><td class="p-2 border text-center font-semibold">{{ $development->rso_retail_store_promotion }}</td></tr>
+                            <tr><td class="p-2 border italic text-gray-600">Financial Perspective</td><td class="p-2 border text-center font-semibold">{{ $development->rso_store_financial_perspective }}</td></tr>
+                            <tr><td class="p-2 border italic text-gray-600">General Strategy</td><td class="p-2 border text-center font-semibold">{{ $development->rso_store_general_checkup_strategy }}</td></tr>
+                        </tbody>
+                    </table> 
+                </div>
 
-                <div class="mt-6 overflow-x-auto">
+                {{-- 📋 GENERAL INFORMATION & TRAINING --}}
+                <div class="overflow-x-auto">
+                    <h3 class="text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider flex items-center">
+                        <span class="w-2 h-4 bg-blue-600 mr-2 rounded-sm"></span>
+                        General Metrics & Training
+                    </h3>
                     <table class="w-full text-sm border">
                         <tbody>
-                            <tr class="bg-gray-50">
-                                <td class="p-2 border font-semibold w-1/3">Learning Hours</td>
-                                <td class="p-2 border">{{ $development->learning_hours }}</td>
+                            <tr class="bg-blue-50/30">
+                                <td class="p-2 border font-semibold w-1/3">Gramedia Daily's Store</td>
+                                <td class="p-2 border font-bold text-blue-700">{{ $development->gramedia_daily_store ?? '0' }}</td>
                             </tr>
                             <tr>
+                                <td class="p-2 border font-semibold">Learning Hours</td>
+                                <td class="p-2 border">{{ $development->learning_hours }}</td>
+                            </tr>
+                            <tr class="bg-gray-50">
                                 <td class="p-2 border font-semibold">Nilai NGECAS</td>
                                 <td class="p-2 border">{{ $development->nilai_ngecas }}</td>
                             </tr>
+                            <tr>
+                                <td class="p-2 border font-semibold">In-house Training</td>
+                                <td class="p-2 border text-gray-600">{{ $development->inhouse_training }}</td>
+                            </tr>
                             <tr class="bg-gray-50">
-                                <td class="p-2 border font-semibold">Compulsory Training</td>
-                                <td class="p-2 border">{{ $development->compulsory_training }}</td>
+                                <td class="p-2 border font-semibold">Public Training</td>
+                                <td class="p-2 border text-gray-600">{{ $development->public_training }}</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-semibold">Intensive Training</td>
+                                <td class="p-2 border text-gray-600">{{ $development->intensive_training }}</td>
                             </tr>
                             <tr>
-                                <td class="p-2 border font-semibold">Optional Training</td>
-                                <td class="p-2 border">{{ $development->optional_training }}</td>
-                            </tr>
-                            <tr class="bg-gray-50">
-                                <td class="p-2 border font-semibold">Development Program</td>
-                                <td class="p-2 border">
+                                <td class="p-2 border font-semibold text-blue-600">Development Program</td>
+                                <td class="p-2 border font-medium">
                                     {{ $development->development_program ?? '-' }}
                                 </td>
                             </tr>
@@ -315,7 +463,7 @@
             </div>
         </div>
         @endif
-
+    </div>
     {{-- ================= MENTORING ================= --}}
     <div class="bg-white shadow rounded p-6">
         <h3 class="text-lg font-semibold mb-4">Mentoring Records</h3>
@@ -383,6 +531,9 @@
         @endif
     </div>
 
+    @php
+        $latestPeriod = $evaluation?->kpi_december !== null ? 'December' : 'June';
+    @endphp
 
     {{-- ================= KPI ================= --}}
     <div class="bg-white shadow rounded p-6 space-y-4">
@@ -392,39 +543,64 @@
         <canvas id="kpiChart" height="120"></canvas>
 
         @if($evaluation)
-            {{-- KPI TABLE --}}
+
+            @php
+                $latestPeriod = $evaluation->kpi_december !== null ? 'December' : 'June';
+            @endphp
+
             <div class="overflow-x-auto mt-4">
                 <table class="w-full text-sm border">
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="p-2 border">Aspect</th>
-                            <th class="p-2 border text-center">June</th>
-                            <th class="p-2 border text-center">December</th>
-                            <th class="p-2 border text-center">Last Year June</th>
-                            <th class="p-2 border text-center">Last Year December</th>
+                            <th class="p-2 border text-center">Latest ({{ $latestPeriod }})</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{-- BUSINESS --}}
+                        <tr>
+                            <td class="p-2 border">Business</td>
+                            <td class="p-2 border text-center">
+                                {{ $evaluation->business_score ?? '-' }}
+                            </td>
+                        </tr>
+
+                        {{-- BEHAVIOR --}}
+                        <tr>
+                            <td class="p-2 border">Behavior</td>
+                            <td class="p-2 border text-center">
+                                {{ $evaluation->behavior_score ?? '-' }}
+                            </td>
+                        </tr>
+
+                        {{-- PA --}}
+                        <tr>
+                            <td class="p-2 border">PA</td>
+                            <td class="p-2 border text-center">
+                                {{ $evaluation->pa_score ?? '-' }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- TOTAL KPI COMPARISON --}}
+            <div class="overflow-x-auto mt-4">
+                <table class="w-full text-sm border">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2 border">Period</th>
+                            <th class="p-2 border text-center">Total KPI</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="p-2 border">Business</td>
-                            <td class="p-2 border text-center">{{ $evaluation->business_score ?? '-' }}</td>
+                            <td class="p-2 border">June</td>
+                            <td class="p-2 border text-center">{{ $evaluation->kpi_june ?? '-' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 border">December</td>
                             <td class="p-2 border text-center">{{ $evaluation->kpi_december ?? '-' }}</td>
-                            <td class="p-2 border text-center">{{ $evaluation->last_year_kpi_june ?? '-' }}</td>
-                            <td class="p-2 border text-center">{{ $evaluation->last_year_kpi_december ?? '-' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="p-2 border">Behavior</td>
-                            <td class="p-2 border text-center">{{ $evaluation->behavior_score ?? '-' }}</td>
-                            <td class="p-2 border text-center">-</td>
-                            <td class="p-2 border text-center">-</td>
-                            <td class="p-2 border text-center">-</td>
-                        </tr>
-                        <tr>
-                            <td class="p-2 border">PA</td>
-                            <td class="p-2 border text-center">{{ $evaluation->pa_score ?? '-' }}</td>
-                            <td class="p-2 border text-center">-</td>
-                            <td class="p-2 border text-center">-</td>
-                            <td class="p-2 border text-center">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -441,11 +617,11 @@
                     </a>
                 </p>
             @endif
+
         @else
             <p class="text-gray-400 text-sm">No KPI data available</p>
         @endif
-</div>
-
+    </div>
 
     </div>
 
@@ -496,15 +672,15 @@
             },
             options: {
                 scales: {
-                    y: { beginAtZero: true, max: 400 }
+                    y: { beginAtZero: true, max: 500 }
                 }
             }
         });
 
       
-    @if($development)
+  @if($development)
     new Chart(document.getElementById('developmentChart'), {
-        type: 'radar',
+        type: 'bar',
         data: {
             labels: [
                 'Supervisory Skill',
@@ -517,7 +693,7 @@
                 'General Strategy'
             ],
             datasets: [{
-                label: 'Development Score',
+                label: 'Score',
                 data: [
                     {{ $development->rso_supervisory_skill ?? 0 }},
                     {{ $development->rso_retail_salesmanship ?? 0 }},
@@ -528,19 +704,57 @@
                     {{ $development->rso_store_financial_perspective ?? 0 }},
                     {{ $development->rso_store_general_checkup_strategy ?? 0 }},
                 ],
-                backgroundColor: 'rgba(79,70,229,0.2)',
-                borderColor: '#4f46e5',
-                borderWidth: 2,
-                pointBackgroundColor: '#4f46e5'
+                backgroundColor: '#f97316', // Orange khas RSO
+                borderRadius: 4,
+                barThickness: 12
             }]
         },
         options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            
+            // Tambahkan bagian ini untuk memunculkan tulisan di atas grafik
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'RSO ASSESSMENT',
+                    align: 'start', // Tulisan rata kiri (sejajar dengan label)
+                    color: '#9a3412', // Warna orange gelap agar kontras
+                    font: {
+                        size: 13,
+                        weight: 'bold',
+                        family: 'sans-serif'
+                    },
+                    padding: {
+                        top: 0,
+                        bottom: 15 // Jarak tulisan ke grafik
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1f2937'
+                }
+            },
+
             scales: {
-                r: {
+                x: {
                     beginAtZero: true,
                     max: 100,
+                    grid: { color: '#f3f4f6' },
+                    ticks: { font: { size: 10 } }
+                },
+                y: {
+                    grid: { display: false },
                     ticks: {
-                        stepSize: 20
+                        autoSkip: false,
+                        color: '#374151',
+                        font: {
+                            size: 11,
+                            weight: '600'
+                        }
                     }
                 }
             }

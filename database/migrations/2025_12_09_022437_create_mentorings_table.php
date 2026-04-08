@@ -13,6 +13,7 @@ return new class extends Migration
 
             // Employee yang di-mentoring
             $table->unsignedBigInteger('employee_id');
+            $table->unsignedTinyInteger('score')->nullable();
 
             // Nama pengisi / mentor
             $table->string('mentor_name');
@@ -27,7 +28,7 @@ return new class extends Migration
 
             // Foreign key ke employees
             $table->foreign('employee_id')
-                ->references('id')
+                ->references('employee_id')
                 ->on('employees')
                 ->onDelete('cascade');
         });

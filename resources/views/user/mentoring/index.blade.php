@@ -55,7 +55,8 @@
                                             notes: @js($m->notes),
                                             notes_hr: @js($m->notes_hr),
                                             status: '{{ ucfirst($m->status) }}',
-                                            date: '{{ $m->created_at?->format('d M Y') ?? '-' }}'
+                                            date: '{{ $m->created_at?->format('d M Y') ?? '-' }}',
+                                            score: {{ $m->score ?? 'null' }}
                                         };
                                     "
                                     class="text-blue-600 hover:underline text-sm">
@@ -105,6 +106,11 @@
                             <p x-text="selected.notes ?? '-'"></p>
                         </div>
                     </div>
+
+                    <p>
+                        <span class="font-semibold">Score:</span>
+                        <span x-text="selected.score !== null ? selected.score : '-'"></span>
+                    </p>
 
                     <div x-show="selected.notes_hr">
                         <p class="font-semibold mb-1 text-green-700">HR Notes</p>

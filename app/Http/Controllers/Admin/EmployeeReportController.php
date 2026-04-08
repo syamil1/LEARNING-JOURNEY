@@ -10,6 +10,8 @@ use App\Models\Mentoring;
 use App\Models\EmployeeTrainingScore;
 use App\Models\EmployeeEvaluation;
 use App\Models\User;
+use App\Models\IndividualDevelopmentPlan;
+
 use Illuminate\Support\Facades\Hash;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -20,6 +22,8 @@ class EmployeeReportController extends Controller
      */
     public function show(Employee $employee)
     {
+
+
     $checklists = OnboardingChecklist::where('employee_id', $employee->employee_id)
         ->orderBy('month')
         ->orderBy('week')
@@ -49,6 +53,10 @@ class EmployeeReportController extends Controller
         return ($approvedWeeks / $totalWeeks) * 100;
     });
 
+    $idps = IndividualDevelopmentPlan::with(['tasks','competency'])
+        ->where('employee_id', $employee->employee_id)
+        ->latest()
+        ->get();
 
         return view('admin.employee-report.show', [
             'employee'        => $employee->load(['store', 'job']),
@@ -60,12 +68,13 @@ class EmployeeReportController extends Controller
             'development'     => EmployeeTrainingScore::where('employee_id', $employee->employee_id)->first(),
             'evaluation'      => EmployeeEvaluation::where('employee_id', $employee->employee_id)->first(),
             'userAccount' => User::where('email', (string)$employee->employee_id)->first(),
+            'idps' => $idps // ✅ TAMBAHKAN IDP KE DALAM DATA YANG DIKIRIM KE VIEW
         ]);
     }
 
     /**
      * DOWNLOAD PDF
-     */
+     */ 
     public function pdf(Employee $employee)
     {
         $checklists = OnboardingChecklist::where('employee_id', $employee->employee_id)
@@ -96,6 +105,11 @@ class EmployeeReportController extends Controller
             return ($approvedWeeks / $totalWeeks) * 100;
         });
 
+        $idps = IndividualDevelopmentPlan::with(['tasks','competency'])
+            ->where('employee_id', $employee->employee_id)
+            ->latest()
+            ->get();
+
         $data = [
             'employee'        => $employee->load(['store', 'job']),
             'introduction'    => Introduction::where('nik', $employee->employee_id)->first(),
@@ -105,15 +119,18 @@ class EmployeeReportController extends Controller
             'mentoring'       => Mentoring::where('employee_id', $employee->employee_id)->get(),
             'development'     => EmployeeTrainingScore::where('employee_id', $employee->employee_id)->first(),
             'evaluation'      => EmployeeEvaluation::where('employee_id', $employee->employee_id)->first(),
+            'idps' => $idps,
         ];
 
         $pdf = Pdf::loadView('admin.employee-report.pdf', $data)
             ->setPaper('a4', 'portrait');
 
+
         return $pdf->download(
             'Learning-Journey-' . $employee->employee_id . '.pdf'
         );
     }
+    
 
     public function resetPassword($employee_id)
     {
@@ -123,6 +140,6 @@ class EmployeeReportController extends Controller
             'password' => Hash::make('12345678')
         ]);
 
-        return back()->with('success', 'Password berhasil direset ke default.');
+        return back()->with('success', 'Password berhasil direset ke default. "12345678"');
     }
-} 
+}

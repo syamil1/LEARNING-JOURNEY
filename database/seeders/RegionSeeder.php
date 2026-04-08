@@ -9,11 +9,11 @@ class RegionSeeder extends Seeder
 {
     public function run(): void
     {
-        $regions = ['A', 'B', 'C', 'D', 'E', 'F'];
+        $regions = ['A', 'B', 'C', 'D', 'E', 'F' , 'G',];
 
         foreach ($regions as $region) {
             DB::table('regions')->insert([
-                'name' => 'Region ' . $region,
+                'name' => 'Division ' . $region,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

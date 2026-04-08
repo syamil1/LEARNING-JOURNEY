@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl md:text-2xl font-semibold">
-            Learning Journey — HR Dashboard
+            Learning Journey — Dashboard
         </h2>
     </x-slot>
 

@@ -22,20 +22,25 @@
 
         {{-- CREATE --}}
         @if($isCreate)
-            <input type="text"
-                   id="employee_search"
-                   class="w-full border rounded px-4 py-2"
-                   placeholder="Cari NIK / Nama"
-                   autocomplete="off">
+        {{-- TAMBAHKAN CLASS RELATIVE DI SINI --}}
+            <div class="relative mt-1"> 
+                <input type="text"
+                    id="employee_search"
+                    class="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                    placeholder="Cari NIK / Nama"
+                    autocomplete="off">
 
-            <input type="hidden"
-                   name="nik"
-                   id="employee_nik"
-                   value="{{ old('nik') }}">
+                <input type="hidden"
+                    name="nik"
+                    id="employee_nik"
+                    value="{{ old('nik') }}">
 
-            <div id="employee_results"
-                 class="border bg-white rounded mt-1 hidden z-10 absolute w-full"></div>
-
+                {{-- Hasil Search --}}
+                <div id="employee_results"
+                    class="absolute left-0 right-0 border bg-white rounded shadow-lg mt-1 hidden z-50 max-h-60 overflow-y-auto">
+                    {{-- Data hasil search akan muncul di sini --}}
+                </div>
+            </div>
         {{-- EDIT & SHOW --}}
         @else
             <input type="text"

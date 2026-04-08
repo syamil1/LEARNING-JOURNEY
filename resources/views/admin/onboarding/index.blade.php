@@ -14,9 +14,11 @@
 </div>
 @endif
 
-{{-- SEARCH --}}
-<form method="GET" class="mb-6">
-    <div class="flex items-center gap-3">
+{{-- SEARCH + EDIT TEMPLATE BUTTON --}}
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-3">
+
+    {{-- SEARCH --}}
+    <form method="GET" class="flex items-center gap-3">
         <input
             type="text"
             name="search"
@@ -30,8 +32,15 @@
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
             Search
         </button>
-    </div>
-</form>
+    </form>
+
+    {{-- BUTTON EDIT TEMPLATE --}}
+    <a href="{{ route('admin.onboarding.template.edit', ['month' => 1, 'week' => 1]) }}"
+       class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-center">
+        Edit Checklist Template
+    </a>
+
+</div>
 
 {{-- CARDS --}}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

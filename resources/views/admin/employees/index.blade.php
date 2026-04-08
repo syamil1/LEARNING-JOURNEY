@@ -23,7 +23,7 @@
                         id="employeeSearch"
                         value="{{ $search }}"
                         placeholder="Search name or ID..."
-                        class="border px-3 py-2 rounded w-64 text-black"
+                        class="border px-4 py-2 rounded w-80 text-black"
                         autocomplete="off"
                     >
 
@@ -37,8 +37,8 @@
                 <select 
                     name="region" 
                     id="regionFilter"
-                    class="border px-4 py-2 rounded text-black">
-                    <option value=""> All Regions </option>
+                    class="border px-4 py-2 rounded w-56 text-black">
+                    <option value=""> All Divisions </option>
                     @foreach($regions as $region)
                         <option value="{{ $region->id }}" 
                             {{ $filterRegion == $region->id ? 'selected' : '' }}>
@@ -53,6 +53,7 @@
                 </button>
             </div>
 
+            @if(in_array(auth()->user()->role, ['admin']))
             <div class="flex gap-2">
             <button 
                 type="button"
@@ -67,6 +68,7 @@
                 Add Employee
             </a>
             </div>
+            @endif
         </div>
     </form>
 
@@ -88,6 +90,27 @@
         </div>
     @endif
 
+    @if(session('errors_import') && count(session('errors_import')) > 0)
+    <div class="bg-red-100 text-red-800 p-4 rounded mb-4">
+
+        <h4 class="font-semibold mb-2">
+            Import Errors ({{ count(session('errors_import')) }})
+        </h4>
+
+        <div class="max-h-40 overflow-y-auto text-sm">
+            <ul class="list-disc ml-5 space-y-1">
+                @foreach(session('errors_import') as $err)
+                    <li>
+                        <b>{{ $err['employee_id'] }}</b> - {{ $err['name'] }}
+                        → {{ $err['issue'] }}
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+
+    </div>
+@endif
+
  <!-- TABLE -->
 <div class="bg-white shadow-md rounded-xl overflow-hidden">
     <div class="overflow-x-auto">
@@ -98,10 +121,12 @@
                     <th class="px-4 py-3 text-left">Employee ID</th>
                     <th class="px-4 py-3 text-left">Name</th>
                     <th class="px-4 py-3 text-left">Contract</th>
-                    <th class="px-4 py-3 text-left">Region</th>
+                    <th class="px-4 py-3 text-left">Division</th>
                     <th class="px-4 py-3 text-left">Store</th>
                     <th class="px-4 py-3 text-left">Joining Date</th>
+                    @if(in_array(auth()->user()->role, ['admin']))
                     <th class="px-4 py-3 text-left">Actions</th>
+                    @endif
                 </tr>
             </thead>
 
@@ -143,6 +168,7 @@
                     </td>
 
                     {{-- ACTION COLUMN --}}
+                    @if(in_array(auth()->user()->role, ['admin']))
                     <td class="px-4 py-3" onclick="event.stopPropagation();">
                         <div class="flex gap-2">
 
@@ -166,6 +192,7 @@
 
                         </div>
                     </td>
+                    @endif
                 </tr>
             @endforeach
             </tbody>
@@ -266,7 +293,7 @@
 
         <p class="text-sm text-gray-600 mb-4">
             Format CSV:
-            employee_id, name, contract_type, division_id, store_id, birthday date, initial_employment_date, joining_date, permanent date
+            employee_id, name, contract_type, store name, birthday date, initial_employment_date, joining_date, permanent date
         </p>
         <a href="{{ asset('templates/Employees.csv') }}"
             download

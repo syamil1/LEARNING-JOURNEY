@@ -18,16 +18,16 @@
                 </div>
 
                 <div class="bg-white p-6 rounded shadow">
-                    <h3 class="text-gray-500 text-sm">Email</h3>
+                    <h3 class="text-gray-500 text-sm">Username</h3>
                     <p class="text-lg">
                         {{ auth()->user()->email }}
                     </p>
                 </div>
 
                 <div class="bg-white p-6 rounded shadow">
-                    <h3 class="text-gray-500 text-sm">Role</h3>
+                    <h3 class="text-gray-500 text-sm">Store ID</h3>
                     <p class="text-lg capitalize">
-                        {{ auth()->user()->role }}
+                        {{ auth()->user()->store->id }}
                     </p>
                 </div>
             </div>
@@ -35,7 +35,7 @@
             {{-- SUMMARY --}}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-blue-50 p-6 rounded shadow">
-                    <p class="text-sm text-gray-600">Total Supervisor</p>
+                    <p class="text-sm text-gray-600">Total Sales Superintendent</p>
                     <p class="text-3xl font-bold text-blue-700">
                         {{ $totalSpv }}
                     </p>

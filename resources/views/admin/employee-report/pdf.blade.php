@@ -177,7 +177,32 @@
         <p>No development data</p>
     @endif
 </div>
+<h3>Individual Development Plan</h3>
 
+@if($idps->count())
+
+    @foreach($idps as $idp)
+
+        <p><strong>{{ $idp->competency?->name }}</strong></p>
+        <p>Target: {{ $idp->target_idp }}</p>
+        <p>Status: {{ ucfirst($idp->status) }}</p>
+
+        <ul>
+            @foreach($idp->tasks as $task)
+                <li>
+                    [{{ ucfirst(str_replace('_',' ',$task->category)) }}]
+                    {{ $task->task }} - ({{ ucfirst($task->status) }})
+                </li>
+            @endforeach
+        </ul>
+
+        <hr>
+
+    @endforeach
+
+@else
+    <p>No IDP data</p>
+@endif
 {{-- ================= MENTORING ================= --}}
 <div class="section">
     <h3>Mentoring Records</h3>

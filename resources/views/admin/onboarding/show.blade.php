@@ -27,16 +27,13 @@
                             Notes HR
                         </label>
 
-                        <textarea
-                            name="notes_hr"
-                            id="notes_hr"
-                            rows="4"
-                            @if($monthStatus === 'approved') readonly @endif
-                            class="border rounded p-3 w-full
-                                {{ $monthStatus === 'approved'
-                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                                    : '' }}">{{ $allChecklists->first()->notes_hr ?? '' }}
-                        </textarea>
+                    <textarea
+                        name="notes_hr"
+                        id="notes_hr"
+                        rows="4"
+                        @if($monthStatus === 'approved') readonly @endif
+                        class="border rounded p-3 w-full {{ $monthStatus === 'approved' ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : '' }}"
+                    >{{ trim($allChecklists->first()->notes_hr ?? '') }}</textarea>
 
 
                         @if($monthStatus === 'approved')
@@ -45,7 +42,6 @@
                             </p>
                         @endif
                     </div>
-
                     {{-- Approve / Reject --}}
                     @if($monthStatus !== 'approved')
                         <div class="flex gap-3">
@@ -65,6 +61,47 @@
             </div>
 
         <div class="max-w-6xl mx-auto px-6">
+
+            @php
+                $notesSM = $allChecklists->first()->notes_store_manager ?? '-';
+                $scoreSM = $allChecklists->first()->score ?? '-';
+            @endphp
+
+            {{-- NOTES STORE MANAGER --}}
+            <div class="bg-white shadow-md rounded-lg p-6 mb-8 border">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                    <span class="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                    Notes from Store Manager
+                </h3>
+
+                <div class="bg-gray-50 p-4 border rounded text-gray-700">
+                    {{ $notesSM }}
+                </div>
+            </div>
+
+            <div class="bg-white shadow-md rounded-lg p-6 mb-8 border">
+
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <span class="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+                Store Manager Score
+            </h3>
+
+            <div class="flex items-center gap-4">
+
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                    <div 
+                        class="bg-blue-600 h-4 rounded-full"
+                        style="width: {{ $scoreSM }}%">
+                    </div>
+                </div>
+
+                <span class="font-semibold text-gray-700">
+                    {{ $scoreSM }} / 100
+                </span>
+
+            </div>
+
+        </div>
 
             {{-- LOOP SEMUA MINGGU --}}
             @foreach ($allChecklists as $weekChecklist)
@@ -142,18 +179,6 @@
                             </div>
                         </div>
                     @endif
-
-                    {{-- NOTES STORE MANAGER --}}
-                    <div class="mb-8">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center">
-                            <span class="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
-                            Notes from Store Manager
-                        </h3>
-
-                        <div class="bg-gray-50 p-4 border rounded text-gray-700">
-                            {{ $weekChecklist->notes_store_manager ?: '-' }}
-                        </div>
-                    </div>
 
                     {{-- META INFO --}}
                     <div class="space-y-1 text-sm text-gray-500">

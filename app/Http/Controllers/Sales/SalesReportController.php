@@ -11,6 +11,7 @@ use App\Models\Mentoring;
 use App\Models\EmployeeTrainingScore;
 use App\Models\EmployeeEvaluation;
 use App\Models\User;
+use App\Models\IndividualDevelopmentPlan;
 
 class SalesReportController extends Controller
 {
@@ -40,6 +41,11 @@ class SalesReportController extends Controller
             return ($approvedWeeks / 4) * 100;
         });
 
+        $idps = IndividualDevelopmentPlan::with(['tasks','competency'])
+        ->where('employee_id', $employee->employee_id)
+        ->latest()
+        ->get();
+
         return view('sales.report.show', [
             'employee'       => $employee->load(['store', 'job', 'region', 'section']),
             'introduction'   => Introduction::where('nik', $employee->employee_id)->first(),
@@ -50,6 +56,7 @@ class SalesReportController extends Controller
             'development'    => EmployeeTrainingScore::where('employee_id', $employee->employee_id)->first(),
             'evaluation'     => EmployeeEvaluation::where('employee_id', $employee->employee_id)->first(),
             'userAccount' => User::where('email', (string)$employee->employee_id)->first(),
+            'idps' => $idps
         ]);
     }
 }

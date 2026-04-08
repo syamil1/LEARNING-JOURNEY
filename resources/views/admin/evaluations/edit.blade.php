@@ -4,7 +4,30 @@
     </x-slot>
 
     <div class="py-6 max-w-4xl mx-auto">
+    {{-- Notifikasi Sukses --}}
+    @if (session('success'))
+        <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+            {{ session('success') }}
+        </div>
+    @endif
 
+    {{-- Notifikasi Error Custom (Total > 500) --}}
+    @if (session('error'))
+        <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- Notifikasi Error Validasi Laravel (min/max/required) --}}
+    @if ($errors->any())
+        <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-600">
+            <ul class="list-disc list-inside text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
         <form method="POST" action="{{ route('admin.evaluations.update', $employee_evaluation->id) }}">
 
             @csrf
@@ -99,26 +122,7 @@
                 value="{{ old('pa_score', $employee_evaluation->pa_score) }}">
         </div>
     </div>
-{{-- ================= KPI PREVIOUS YEAR ================= --}}
-<div class="mt-8">
-    <h3 class="font-semibold mb-3">KPI – Previous Year</h3>
 
-    <div class="grid grid-cols-2 gap-4">
-        <div>
-            <label class="block mb-1">June</label>
-            <input type="number" step="0.01" name="last_year_kpi_june"
-                class="border p-2 w-full rounded"
-                value="{{ old('last_year_kpi_june', $employee_evaluation->last_year_kpi_june) }}">
-        </div>
-
-        <div>
-            <label class="block mb-1">December</label>
-            <input type="number" step="0.01" name="last_year_kpi_december"
-                class="border p-2 w-full rounded"
-                value="{{ old('last_year_kpi_december', $employee_evaluation->last_year_kpi_december) }}">
-        </div>
-    </div>
-</div>
 
 {{-- ================= ASSESSMENT ================= --}}
 <div class="mt-6">

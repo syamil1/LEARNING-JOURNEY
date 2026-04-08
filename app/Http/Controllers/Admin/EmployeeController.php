@@ -74,7 +74,6 @@ class EmployeeController extends Controller
             'employee_id' => 'required|unique:employees',
             'name' => 'required',
             'contract_type' => 'required|in:Permanent,Contract',
-            'region_id' => 'required|exists:regions,id',
             'store_id' => 'required|exists:stores,id',
             'section_id' => 'required|exists:sections,id',
             'job_id' => 'required|exists:jobs,id',
@@ -83,6 +82,9 @@ class EmployeeController extends Controller
             'joining_date' => 'nullable|date',
             'permanent_date' => 'nullable|date',
         ]);
+
+        $store = Store::findOrFail($validated['store_id']);
+        $validated['region_id'] = $store->region_id;
 
         $employee = Employee::create($validated);
 
@@ -117,7 +119,6 @@ class EmployeeController extends Controller
             'employee_id' => 'required|unique:employees,employee_id,' . $employee->id,
             'name' => 'required',
             'contract_type' => 'required|in:Permanent,Contract',
-            'region_id' => 'required|exists:regions,id',
             'store_id' => 'required|exists:stores,id',
             'section_id' => 'required|exists:sections,id',
             'job_id' => 'required|exists:jobs,id',
@@ -126,6 +127,9 @@ class EmployeeController extends Controller
             'joining_date' => 'nullable|date', 
             'permanent_date' => 'nullable|date',
         ]);
+
+        $store = Store::findOrFail($validated['store_id']);
+        $validated['region_id'] = $store->region_id;
 
         $employee->update($validated);
 
@@ -198,9 +202,21 @@ public function import(Request $request)
         $created = 0;
         $skipped = 0;
 
+        $errors = [];
+
+        $password = Hash::make('12345678');
+        
+        set_time_limit(300);
+
         while (($row = fgetcsv($file, 0, $delimiter)) !== false) {
 
-            if (count($row) < 9 || trim($row[0]) === '') {
+            if (count($row) < 8 || trim($row[0]) === '') {
+                    $errors[] = [
+                        'employee_id' => '-',
+                        'name' => '-',
+                        'issue' => 'Format tidak valid / kolom kurang'
+                    ];
+
                 $skipped++;
                 continue;
             }
@@ -209,75 +225,103 @@ public function import(Request $request)
 
             $employeeId = trim($row[0]);
 
-            // Skip if employee already exists
+            // Skip jika sudah ada
             if (DB::table('employees')->where('employee_id', $employeeId)->exists()) {
                 $skipped++;
                 continue;
             }
 
-            // ✅ FIXED INDEX
-            $regionId = $row[3] ?? null;
-            $storeId  = $row[4] ?? null;
+        $storeInput = trim($row[3] ?? '');
 
-            // Validate relation
-            if (
-                !DB::table('regions')->where('id', $regionId)->exists() ||
-                !DB::table('stores')->where('id', $storeId)->exists()
-            ) {
+        // 🔥 hapus kata "Dept"
+        $storeInput = preg_replace('/\bdept\b/i', '', $storeInput);
+        $storeInput = trim($storeInput);
+
+        // 🔥 normalize (lowercase)
+        $storeInput = strtolower($storeInput);
+
+        // ambil semua store sekali (biar cepat)
+        static $stores = null;
+
+        if ($stores === null) {
+            $stores = DB::table('stores')->get()->keyBy(function ($s) {
+                return strtolower(trim($s->name));
+            });
+        }
+
+        // 🔥 exact match
+        $store = $stores[$storeInput] ?? null;
+
+        if (!$store) {
+            $errors[] = [
+                'employee_id' => $employeeId,
+                'name' => trim($row[1] ?? '-'),
+                'issue' => 'Store tidak ditemukan: ' . $row[3]
+            ];
+
+            $skipped++;
+            continue;
+        }
+
+        $storeId  = $store->id;
+        $regionId = $store->region_id;
+
+            if (!$store) {
                 $skipped++;
                 continue;
             }
+
+            $regionId = $store->region_id;
 
             DB::table('employees')->insert([
                 'employee_id'             => $employeeId,
                 'name'                    => trim($row[1]),
                 'contract_type'           => trim($row[2]),
 
-                'region_id'               => $regionId,
+                'region_id'               => $regionId, // 🔥 dari store
                 'store_id'                => $storeId,
 
-                // DEFAULT VALUE
+                // default
                 'section_id'              => 1,
                 'job_id'                  => 1,
 
-                'birthday'                => $this->parseDate($row[5] ?? null),
-                'initial_employment_date' => $this->parseDate($row[6] ?? null),
-                'joining_date'            => $this->parseDate($row[7] ?? null),
-                'permanent_date'          => $this->parseDate($row[8] ?? null),
+                // ⚠️ index geser karena region dihapus
+                'birthday'                => $this->parseDate($row[4] ?? null),
+                'initial_employment_date' => $this->parseDate($row[5] ?? null),
+                'joining_date'            => $this->parseDate($row[6] ?? null),
+                'permanent_date'          => $this->parseDate($row[7] ?? null),
 
                 'created_at'              => now(),
                 'updated_at'              => now(),
             ]);
 
-        
-        if (!User::where('email', $employeeId)->exists()) {
-            User::create([
-                'name' => trim($row[1]),
-                'email' => $employeeId,
-                'password' => Hash::make('12345678'),
-                'role' => User::ROLE_SALES_SUPERINTENDENT,
-            ]);
-        }
+            // buat akun user
+            User::updateOrCreate(
+                ['email' => $employeeId],
+                [
+                    'name' => trim($row[1]),
+                    'password' => $password,
+                    'role' => User::ROLE_SALES_SUPERINTENDENT,
+                ]
+            );
 
             $created++;
         }
 
         fclose($file);
 
-        return redirect()
-            ->route('admin.employees.index')
-            ->with(
-                'success',
-                "Import Employees completed — Read: {$read}, Created: {$created}, Skipped: {$skipped}."
-            );
+    return redirect()
+        ->route('admin.employees.index')
+        ->with([
+            'success' => "Import Employees completed — Read: {$read}, Created: {$created}, Skipped: {$skipped}.",
+            'errors_import' => $errors
+        ]);
 
     } catch (\Throwable $e) {
         fclose($file);
         return back()->with('error', 'Import failed: ' . $e->getMessage());
     }
 }
-
-
 
 
 }

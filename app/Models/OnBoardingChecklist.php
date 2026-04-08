@@ -20,10 +20,12 @@ class OnboardingChecklist extends Model
         'filled_by',
         'month',
         'week',
+        'score',
         'checklist_json', 
         'notes_store_manager',
         'status',
         'notes_hr',
+        'notes_ss'
     ];
 
     public function employee()

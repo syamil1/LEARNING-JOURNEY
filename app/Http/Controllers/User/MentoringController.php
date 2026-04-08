@@ -45,14 +45,15 @@ class MentoringController extends Controller
     {
         $request->validate([
             'employee_id' => 'required',
-            'mentor_name' => 'required|string',
+            'mentor_name' => 'required|string', 
             'notes' => 'nullable|string',
+            'score' => 'nullable|integer|min:1|max:100', // ✅ tambah ini
         ]);
-
         Mentoring::create([
             'employee_id' => $request->employee_id,
             'mentor_name' => $request->mentor_name,
             'notes' => $request->notes,
+            'score' => $request->score,
             'store_id' => auth()->user()->store->id,
             'status' => 'pending',
         ]);

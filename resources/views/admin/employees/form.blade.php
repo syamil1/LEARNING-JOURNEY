@@ -20,7 +20,7 @@
 
 <div class="grid grid-cols-2 gap-4">
     <div>
-        <label>Region</label>
+        <label>Divison</label>
         <select name="region_id" class="border w-full px-3 py-2 rounded">
             @foreach($regions as $region)
                 <option value="{{ $region->id }}"

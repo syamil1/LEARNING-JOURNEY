@@ -26,7 +26,7 @@
                 <label class="font-semibold">Search Employee</label>
 
                 <div class="relative mt-1">
-                    <input                     type="text" 
+                    <input type="text" 
                         id="employeeSearchIndex"
                         class="w-full border rounded px-4 py-2"
                         placeholder="Employee ID / Name..."
@@ -196,7 +196,7 @@
             rso_product_merchandising, rso_visual_merchandising,
             rso_retail_store_promotion, rso_store_financial_perspective,
             rso_store_general_checkup_strategy, learning_hours,
-            nilai_ngecas, compulsory_training, optional_training,
+            nilai_ngecas, inhouse_training, public_training, intensive_training,
             development_program.
         </p>
 

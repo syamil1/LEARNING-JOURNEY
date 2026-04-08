@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             SectionSeeder::class,
             JobSeeder::class,
             AdminHrSeeder::class, // kalau ada
+            StoreSeeder::class, 
         ]);
     }
 

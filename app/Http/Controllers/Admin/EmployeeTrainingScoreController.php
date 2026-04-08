@@ -71,8 +71,9 @@ class EmployeeTrainingScoreController extends Controller
             'rso_store_general_checkup_strategy' => 'nullable|integer|min:0|max:100',
             'learning_hours' => 'nullable|numeric|min:0',
             'nilai_ngecas' => 'nullable|integer|min:0|max:100',
-            'compulsory_training' => 'nullable|string',
-            'optional_training' => 'nullable|string',
+            'inhouse_training' => 'nullable|string',
+            'public_training' => 'nullable|string',
+            'intensive_training' => 'nullable|string',
             'development_program' => 'nullable|string',
         ],[
             'employee_id.unique' => 'Employee ini sudah memiliki training score.',
@@ -128,8 +129,9 @@ class EmployeeTrainingScoreController extends Controller
             'learning_hours' => 'nullable|numeric|min:0',
             'nilai_ngecas' => 'nullable|integer|min:0|max:100',
 
-            'compulsory_training' => 'nullable|string',
-            'optional_training' => 'nullable|string',
+            'inhouse_training' => 'nullable|string',
+            'public_training' => 'nullable|string',
+            'intensive_training' => 'nullable|string',
             'development_program' => 'nullable|string',
         ]);
 
@@ -222,12 +224,13 @@ class EmployeeTrainingScoreController extends Controller
                 'rso_store_general_checkup_strategy' => $num($row[9] ?? null),
                 'learning_hours'                     => $num($row[10] ?? null),
                 'nilai_ngecas'                       => $num($row[11] ?? null),
-                'compulsory_training'                => $str($row[12] ?? null),
-                'optional_training'                  => $str($row[13] ?? null),
-                'development_program'                => $str($row[14] ?? null),
+                'inhouse_training'                   => $str($row[12] ?? null),
+                'public_training'                    => $str($row[13] ?? null),
+                'intensive_training'                 => $str($row[14] ?? null),
+                'development_program'                => $str($row[15] ?? null),
             ];
 
-            $existing = \App\Models\EmployeeTrainingScore::where(
+            $existing = EmployeeTrainingScore::where(
                 'employee_id',
                 $employeeId
             )->first();
@@ -236,7 +239,7 @@ class EmployeeTrainingScoreController extends Controller
                 $existing->update($data);
                 $updated++;
             } else {
-                \App\Models\EmployeeTrainingScore::create($data);
+                EmployeeTrainingScore::create($data);
                 $created++;
             }
         }
